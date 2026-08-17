@@ -23,12 +23,14 @@ export const TOKEN = {
 export const isMintConfigured = () => TOKEN.mint.trim().length > 0;
 
 /**
- * Wallet connect / gating UI is shown only once the mint exists. Until then
- * the site is a pure landing page — no connect buttons, terminal shown as
- * "opens at launch". Setting NEXT_PUBLIC_ATTENTION_MINT flips all of it on
- * (it is build-inlined, so a redeploy is required).
+ * Wallet connect is OFF by design: rewards are automatic airdrops to holders
+ * found by the on-chain scan, so nobody has to connect anything — holding the
+ * token is the registration. The full auth stack (challenge/verify/sessions)
+ * stays in the codebase, dormant; set NEXT_PUBLIC_WALLET_CONNECT=true (plus
+ * the mint) only if per-wallet features ever return.
  */
-export const WALLET_ENABLED = isMintConfigured();
+export const WALLET_ENABLED =
+  isMintConfigured() && process.env.NEXT_PUBLIC_WALLET_CONNECT === "true";
 
 /**
  * Where trading fees go. Must total 100.

@@ -1,8 +1,16 @@
 # Attention Markets
 
-The attention layer of Solana. Fees pay the people who find attention, hold it, and call it out.
+The attention layer of Solana. Find attention. Create attention. Get rewarded for it.
 
-Next.js 15 (App Router) · React 19 · Tailwind v4 · Solana wallet sign-in.
+Next.js 15 (App Router) · React 19 · Tailwind v4.
+
+**Reward model: automatic airdrops.** Nobody connects a wallet — the protocol scans
+every holder on-chain (`/api/epoch`) and payouts are sent to them directly
+(`scripts/payout.mjs`). Holding the token is the registration. Wallet connect and
+the full auth stack (challenge/verify/sessions, token gating) remain in the
+codebase but are OFF by default; enable with `NEXT_PUBLIC_WALLET_CONNECT=true`
+plus the mint if per-wallet features ever return. With connect off, the Terminal
+is public.
 
 ---
 

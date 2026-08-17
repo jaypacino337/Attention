@@ -18,7 +18,9 @@ const fmt = (n: number) => Math.round(n).toLocaleString("en-US");
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <section className="mx-auto max-w-6xl px-5 py-14">
-      <p className="label">Token-gated · {fmt(TERMINAL_GATE)} {TOKEN.symbol}</p>
+      <p className="label">
+        {WALLET_ENABLED ? `Token-gated · ${fmt(TERMINAL_GATE)} ${TOKEN.symbol}` : "Live intelligence"}
+      </p>
       <h1 className="mt-3 text-4xl font-extrabold tracking-tight md:text-5xl">
         Attention <span className="serif-italic font-normal">Terminal</span>
       </h1>
@@ -28,23 +30,38 @@ function Shell({ children }: { children: React.ReactNode }) {
 }
 
 export default async function TerminalPage() {
-  // Pre-launch: no mint, no wallet UI — the terminal is a preview, not a gate.
+  // Wallet connect is off: rewards are automatic airdrops, so there is no
+  // per-wallet session to gate on — the terminal is public.
   if (!WALLET_ENABLED) {
+    const [feed, scannerCalls, leaderboard] = await Promise.all([
+      getTerminalFeed(),
+      loadScannerCalls(),
+      getLeaderboard(),
+    ]);
     return (
       <Shell>
-        <div className="mt-8 max-w-lg border rule bg-[var(--ground-raised)] p-6 bracket">
-          <p className="text-lg font-bold">Opens at launch</p>
-          <p className="mt-2 text-sm text-[var(--text-soft)]">
-            The terminal goes live with the token. Holders of {fmt(TERMINAL_GATE)} {TOKEN.symbol}{" "}
-            get in; {fmt(FULL_TIER)} unlocks the operator panels — top wallets, meta rotation and
-            chain flow.
-          </p>
-          <Link
-            href="/#rewards"
-            className="mt-5 inline-block border px-3 py-2 text-sm font-semibold rule hover:border-[var(--color-orange)]"
-          >
-            See the tiers
-          </Link>
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          {feed.source === "sample" ? (
+            <span className="border border-dashed rule px-2 py-1 text-xs font-semibold text-[var(--text-soft)]">
+              sample data — live feeds not connected
+            </span>
+          ) : feed.source === "manual" ? (
+            <span className="border border-dashed rule px-2 py-1 text-xs font-semibold text-[var(--text-soft)]">
+              curated by the team
+            </span>
+          ) : null}
+        </div>
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
+          <TerminalPanels
+            feed={feed}
+            scannerCalls={scannerCalls}
+            leaderboard={leaderboard}
+            isOperator
+            operatorMin={FULL_TIER}
+          />
+          <aside className="space-y-6">
+            <AdSlot slot="terminal" label="Terminal sidebar" size="400 × 300" />
+          </aside>
         </div>
       </Shell>
     );

@@ -201,9 +201,9 @@ export default async function HomePage() {
               {
                 k: "03",
                 title: "Create it",
-                body: "Generate and maintain attention on X. Link your account so rewards land in your wallet.",
-                href: "/account",
-                cta: "Link your X",
+                body: "Generate and maintain attention on X. Rewards route to the wallet behind the attention.",
+                href: LINKS.x,
+                cta: "Post on X",
               },
             ].map((item) => (
               <Link
@@ -288,6 +288,10 @@ export default async function HomePage() {
           <h2 className="mt-3 max-w-2xl text-4xl font-extrabold tracking-tight md:text-5xl">
             Hold the floor, <span className="serif-italic font-normal">earn the pools</span>.
           </h2>
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--text-soft)]">
+            Rewards are automatic airdrops. No connect, no claiming — the protocol scans holders
+            on-chain and payouts land in your wallet.
+          </p>
 
           <div className="mt-10 grid gap-10 lg:grid-cols-[1.1fr_1fr]">
             <div className="grid gap-px bg-[var(--line)] sm:grid-cols-2">

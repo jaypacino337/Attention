@@ -25,12 +25,16 @@ export function EligibilityPanel({
   if (!WALLET_ENABLED) {
     return (
       <div className="bracket border rule bg-[var(--ground-raised)] p-6">
-        <p className="label">Eligibility</p>
-        <p className="mt-3 text-lg font-bold">Gating opens at launch</p>
+        <p className="label">Automatic airdrops</p>
+        <p className="mt-3 text-lg font-bold">Hold. That&apos;s it.</p>
         <p className="mt-2 text-sm text-[var(--text-soft)]">
-          When ATTENTION is live, hold {fmt(eligibleAt)} to qualify for every reward pool and open
-          the terminal — {fmt(fullAt)} earns at double weight. Balances will be checked on-chain,
-          with a free signature, never a transaction.
+          No connect, no signup, no claiming. The protocol scans every holder on-chain — hold{" "}
+          {fmt(eligibleAt)}+ $ATTENTION and rewards are airdropped straight to your wallet.{" "}
+          {fmt(fullAt)} earns at double weight.
+        </p>
+        <p className="mt-3 border-l-2 border-[var(--color-orange)] pl-3 text-sm text-[var(--text-soft)]">
+          If anything ever asks you to connect a wallet or sign to &quot;claim rewards&quot; from
+          us, it&apos;s a scam. Payouts find you.
         </p>
       </div>
     );
