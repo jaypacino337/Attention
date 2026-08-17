@@ -85,10 +85,11 @@ if (total !== 100) {
 }
 
 /**
- * Holding tiers. `min` is a whole-token amount (not base units).
+ * Holder eligibility. `min` is a whole-token amount (not base units).
  *
- * BASE is the floor for any reward and for terminal access; FULL unlocks the
- * boosted reward weight and the premium terminal panels.
+ * ONE floor, deliberately: hold 250K $ATTENTION and you're in every reward
+ * pool. No boosted tiers, no weight multipliers — simple to explain in a
+ * post, simple to verify on-chain.
  */
 export const TIERS = [
   {
@@ -104,22 +105,9 @@ export const TIERS = [
     min: 250_000,
     weight: 1,
     perks: [
-      "Reward eligibility across every pool",
-      "Attention Terminal access",
-      "Scanner access",
-      "Link X for attention rewards",
-    ],
-  },
-  {
-    id: "full",
-    name: "500K",
-    min: 500_000,
-    weight: 2,
-    perks: [
-      "Everything at 250K",
-      "2x reward weight across every pool",
-      "Advanced Terminal panels",
-      "Scanner calls as they fire",
+      "Eligible for every reward pool",
+      "Automatic airdrops — nothing to claim",
+      "Counted in every epoch's holder scan",
     ],
   },
 ] as const;
@@ -128,8 +116,7 @@ export type Tier = (typeof TIERS)[number];
 export type TierId = Tier["id"];
 
 export const MIN_ELIGIBLE = 250_000;
-export const FULL_TIER = 500_000;
-/** Minimum balance required to open the Attention Terminal. */
+/** Minimum balance required for terminal access, if gating is ever re-enabled. */
 export const TERMINAL_GATE = MIN_ELIGIBLE;
 
 /** Resolve a whole-token balance to its tier. */

@@ -4,7 +4,7 @@ import { AdSlot } from "@/components/ad-slot";
 import { ConnectButton, ConnectError } from "@/components/connect-button";
 import { TerminalPanels } from "@/components/terminal-panels";
 import { loadAccount } from "@/lib/account";
-import { FULL_TIER, TERMINAL_GATE, TOKEN, WALLET_ENABLED } from "@/lib/config";
+import { TERMINAL_GATE, TOKEN, WALLET_ENABLED } from "@/lib/config";
 import { getTerminalFeed } from "@/lib/terminal";
 import { loadScannerCalls } from "@/lib/scanner";
 import { getLeaderboard } from "@/lib/leaderboard";
@@ -52,13 +52,7 @@ export default async function TerminalPage() {
           ) : null}
         </div>
         <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
-          <TerminalPanels
-            feed={feed}
-            scannerCalls={scannerCalls}
-            leaderboard={leaderboard}
-            isOperator
-            operatorMin={FULL_TIER}
-          />
+          <TerminalPanels feed={feed} scannerCalls={scannerCalls} leaderboard={leaderboard} />
           <aside className="space-y-6">
             <AdSlot slot="terminal" label="Terminal sidebar" size="400 × 300" />
           </aside>
@@ -109,7 +103,7 @@ export default async function TerminalPage() {
             href="/#rewards"
             className="mt-5 inline-block border px-3 py-2 text-sm font-semibold rule hover:border-[var(--color-orange)]"
           >
-            See the tiers
+            See eligibility
           </Link>
         </div>
       </Shell>
@@ -121,8 +115,6 @@ export default async function TerminalPage() {
     loadScannerCalls(),
     getLeaderboard(),
   ]);
-  const isOperator = account.balance >= FULL_TIER;
-
   return (
     <Shell>
       <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -130,7 +122,7 @@ export default async function TerminalPage() {
           {account.tier.name}
         </span>
         <span className="text-sm text-[var(--text-soft)]">
-          {fmt(account.balance)} {TOKEN.symbol} · {account.tier.weight}x weight
+          {fmt(account.balance)} {TOKEN.symbol}
         </span>
         {feed.source === "sample" ? (
           <span className="border border-dashed rule px-2 py-1 text-xs font-semibold text-[var(--text-soft)]">
@@ -144,13 +136,7 @@ export default async function TerminalPage() {
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
-        <TerminalPanels
-          feed={feed}
-          scannerCalls={scannerCalls}
-          leaderboard={leaderboard}
-          isOperator={isOperator}
-          operatorMin={FULL_TIER}
-        />
+        <TerminalPanels feed={feed} scannerCalls={scannerCalls} leaderboard={leaderboard} />
         <aside className="space-y-6">
           <AdSlot slot="terminal" label="Terminal sidebar" size="400 × 300" />
         </aside>

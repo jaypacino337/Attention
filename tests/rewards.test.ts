@@ -18,13 +18,13 @@ test("bucket amounts follow the 30/30/30/10 split", () => {
   assert.equal(buckets.treasury, 10);
 });
 
-test("tiers resolve at the documented thresholds", () => {
+test("single 250K floor resolves correctly", () => {
   assert.equal(tierFor(0).id, "none");
   assert.equal(tierFor(249_999).id, "none");
   assert.equal(tierFor(250_000).id, "base");
-  assert.equal(tierFor(499_999).id, "base");
-  assert.equal(tierFor(500_000).id, "full");
-  assert.equal(tierFor(10_000_000).id, "full");
+  assert.equal(tierFor(10_000_000).id, "base");
+  // One floor, one weight — no boosted tier exists.
+  assert.equal(tierFor(10_000_000).weight, 1);
 });
 
 test("wallets below the minimum earn nothing", () => {
@@ -34,16 +34,16 @@ test("wallets below the minimum earn nothing", () => {
   assert.equal(payouts.length, 0);
 });
 
-test("operator tier earns double weight on an equal holding-independent score", () => {
+test("equal callout scores split the pool equally — no tier boosts", () => {
   const { payouts } = distributeEpoch(100, [
-    { wallet: "watcher", balance: 250_000, calloutScore: 10 },
-    { wallet: "operator", balance: 500_000, calloutScore: 10 },
+    { wallet: "a", balance: 250_000, calloutScore: 10 },
+    { wallet: "b", balance: 5_000_000, calloutScore: 10 },
   ]);
-  const watcher = payouts.find((p) => p.wallet === "watcher")!;
-  const operator = payouts.find((p) => p.wallet === "operator")!;
-  // Callout pool is 30; weights are 1 and 2, so 10 / 20 of the pool.
-  assert.equal(Math.round(watcher.amounts.callouts * 100) / 100, 10);
-  assert.equal(Math.round(operator.amounts.callouts * 100) / 100, 20);
+  const a = payouts.find((p) => p.wallet === "a")!;
+  const b = payouts.find((p) => p.wallet === "b")!;
+  // Callout pool is 30; same score and same weight → 15 each, regardless of bag size.
+  assert.equal(Math.round(a.amounts.callouts * 100) / 100, 15);
+  assert.equal(Math.round(b.amounts.callouts * 100) / 100, 15);
 });
 
 test("social pool only pays verified X links", () => {

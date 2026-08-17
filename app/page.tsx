@@ -6,7 +6,7 @@ import { TokenStats } from "@/components/token-stats";
 import { LiveAttentionModule } from "@/components/live-attention";
 import { Flywheel } from "@/components/flywheel";
 import { ScannerTable } from "@/components/scanner-table";
-import { FEE_SPLIT, FULL_TIER, LINKS, MIN_ELIGIBLE, TIERS } from "@/lib/config";
+import { FEE_SPLIT, LINKS, MIN_ELIGIBLE, TIERS } from "@/lib/config";
 import { fundHasData, loadFund } from "@/lib/fund";
 import { loadLiveAttention } from "@/lib/live";
 import { loadScannerCalls } from "@/lib/scanner";
@@ -284,38 +284,70 @@ export default async function HomePage() {
       {/* 7 — HOLDER ACCESS */}
       <section id="access" className="border-b rule">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-20">
-          <p className="label">Holder access</p>
+          <p className="label">Holder eligibility</p>
           <h2 className="mt-3 max-w-2xl text-4xl font-extrabold tracking-tight md:text-5xl">
-            Hold the floor, <span className="serif-italic font-normal">earn the pools</span>.
+            One floor. <span className="serif-italic font-normal">That&apos;s it.</span>
           </h2>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--text-soft)]">
-            Rewards are automatic airdrops. No connect, no claiming — the protocol scans holders
-            on-chain and payouts land in your wallet.
+            Rewards are automatic airdrops. No connect, no claiming, no tiers — the protocol scans
+            holders on-chain and payouts land in your wallet.
           </p>
 
           <div className="mt-10 grid gap-10 lg:grid-cols-[1.1fr_1fr]">
-            <div className="grid gap-px bg-[var(--line)] sm:grid-cols-2">
-              {TIERS.filter((tier) => tier.min > 0).map((tier) => (
-                <div key={tier.id} className="bg-[var(--ground)] p-6">
-                  <p className="font-mono text-3xl font-bold tracking-tight">
-                    {fmt(tier.min)}
-                  </p>
-                  <p className="mt-1 text-sm text-[var(--text-soft)]">
-                    $ATTENTION · {tier.weight}x reward weight
-                  </p>
-                  <ul className="mt-4 space-y-2">
-                    {tier.perks.map((perk) => (
-                      <li key={perk} className="flex gap-2 text-sm text-[var(--text-soft)]">
-                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[var(--color-orange)]" />
-                        {perk}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
+            {TIERS.filter((tier) => tier.min > 0).map((tier) => (
+              <div key={tier.id} className="bracket border rule bg-[var(--ground)] p-8">
+                <p className="font-mono text-5xl font-bold tracking-tight">
+                  {fmt(tier.min)}
+                </p>
+                <p className="mt-1 text-sm text-[var(--text-soft)]">$ATTENTION minimum</p>
+                <ul className="mt-6 space-y-2.5">
+                  {tier.perks.map((perk) => (
+                    <li key={perk} className="flex gap-2 text-sm text-[var(--text-soft)]">
+                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[var(--color-orange)]" />
+                      {perk}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
 
-            <EligibilityPanel eligibleAt={MIN_ELIGIBLE} fullAt={FULL_TIER} />
+            <EligibilityPanel eligibleAt={MIN_ELIGIBLE} />
+          </div>
+        </div>
+      </section>
+
+      {/* COMING NEXT */}
+      <section className="border-b rule">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <p className="label">Coming next</p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">
+            The scanner goes <span className="serif-italic font-normal">live</span>.
+          </h2>
+          <div className="mt-8 grid gap-px bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                title: "Live scanner feeds",
+                body: "Real-time signal pulled from pump.fun, FOMO and X — calls fire from data, not vibes.",
+              },
+              {
+                title: "X attention rewards",
+                body: "Measured reach on X, paid to the wallet behind the attention.",
+              },
+              {
+                title: "Fund transparency",
+                body: "Every fund trade, buyback and burn on the dashboard with explorer links.",
+              },
+              {
+                title: "Paid attention",
+                body: "Projects pay to get attention across the protocol.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="bg-[var(--ground)] p-6">
+                <span className="block h-1 w-8 bg-[var(--color-orange)]" />
+                <h3 className="mt-4 font-bold">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--text-soft)]">{item.body}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -326,6 +358,9 @@ export default async function HomePage() {
           <h2 className="mx-auto max-w-2xl text-4xl font-extrabold tracking-tight md:text-6xl">
             Attention is <span className="serif-italic font-normal">currency</span>.
           </h2>
+          <p className="mx-auto mt-4 max-w-md text-sm text-[var(--text-soft)]">
+            Create attention. Earn $ATTENTION.
+          </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
               href="/terminal"

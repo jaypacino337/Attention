@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { EligibilityPanel } from "@/components/eligibility-panel";
 import { XLinkForm } from "@/components/x-link-form";
-import { FEE_SPLIT, FULL_TIER, MIN_ELIGIBLE } from "@/lib/config";
+import { FEE_SPLIT, MIN_ELIGIBLE } from "@/lib/config";
 
 export const metadata: Metadata = { title: "Account — Attention Markets" };
 
@@ -18,7 +18,7 @@ export default function AccountPage() {
       </p>
 
       <div className="mt-10 grid gap-6 md:grid-cols-2">
-        <EligibilityPanel eligibleAt={MIN_ELIGIBLE} fullAt={FULL_TIER} />
+        <EligibilityPanel eligibleAt={MIN_ELIGIBLE} />
         <XLinkForm />
       </div>
 

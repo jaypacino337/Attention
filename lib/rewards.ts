@@ -68,7 +68,7 @@ function shareOut(
  *
  * Eligibility rules applied here:
  *  - below MIN_ELIGIBLE earns nothing from any holder pool;
- *  - tier weight multiplies every holder-pool score (Operator counts double);
+ *  - tier weight multiplies every holder-pool score (single tier: weight 1);
  *  - the social pool pays only wallets with a *verified* X link;
  *  - the treasury bucket is not distributed — it funds the wallet/scanner and
  *    its profits come back as buy-and-burn.

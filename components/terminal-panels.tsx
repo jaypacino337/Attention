@@ -24,34 +24,14 @@ function Panel({
   );
 }
 
-/** Blur-gated panel for holders below the Operator tier. */
-function Locked({ min, children }: { min: number; children: React.ReactNode }) {
-  return (
-    <div className="relative">
-      <div className="pointer-events-none select-none blur-sm" aria-hidden="true">
-        {children}
-      </div>
-      <div className="absolute inset-0 grid place-items-center bg-[var(--ground-raised)]/70">
-        <p className="px-4 text-center text-sm font-semibold">
-          Hold {min.toLocaleString("en-US")} $ATTENTION to unlock
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export function TerminalPanels({
   feed,
   scannerCalls,
   leaderboard,
-  isOperator,
-  operatorMin,
 }: {
   feed: TerminalFeed;
   scannerCalls: ScannerCallView[];
   leaderboard: Leaderboard | null;
-  isOperator: boolean;
-  operatorMin: number;
 }) {
   // Real on-chain holders when the scan is live; curated/sample feed otherwise.
   const holdersTable = leaderboard ? (
@@ -183,23 +163,13 @@ export function TerminalPanels({
 
       <Panel
         title={leaderboard ? "Top holders" : "Top wallets"}
-        note={
-          isOperator
-            ? leaderboard
-              ? `on-chain · ${leaderboard.eligibleHolders} eligible`
-              : "7d"
-            : "500K only"
-        }
+        note={leaderboard ? `on-chain · ${leaderboard.eligibleHolders} eligible` : "7d"}
       >
-        {isOperator ? (
-          (holdersTable ?? wallets)
-        ) : (
-          <Locked min={operatorMin}>{holdersTable ?? wallets}</Locked>
-        )}
+        {holdersTable ?? wallets}
       </Panel>
 
-      <Panel title="Chain flow" note={isOperator ? "24h net" : "500K only"}>
-        {isOperator ? chains : <Locked min={operatorMin}>{chains}</Locked>}
+      <Panel title="Chain flow" note="24h net">
+        {chains}
       </Panel>
     </div>
   );

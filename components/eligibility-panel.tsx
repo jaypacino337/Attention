@@ -13,13 +13,7 @@ const fmt = (n: number) => Math.round(n).toLocaleString("en-US");
  * This is the honest-state component: it says "connect", "preview mode",
  * "not enough" or "you're in", and never guesses a balance it could not read.
  */
-export function EligibilityPanel({
-  eligibleAt,
-  fullAt,
-}: {
-  eligibleAt: number;
-  fullAt: number;
-}) {
+export function EligibilityPanel({ eligibleAt }: { eligibleAt: number }) {
   const { account, status } = useWallet();
 
   if (!WALLET_ENABLED) {
@@ -29,8 +23,7 @@ export function EligibilityPanel({
         <p className="mt-3 text-lg font-bold">Hold. That&apos;s it.</p>
         <p className="mt-2 text-sm text-[var(--text-soft)]">
           No connect, no signup, no claiming. The protocol scans every holder on-chain — hold{" "}
-          {fmt(eligibleAt)}+ $ATTENTION and rewards are airdropped straight to your wallet.{" "}
-          {fmt(fullAt)} earns at double weight.
+          {fmt(eligibleAt)}+ $ATTENTION and rewards are airdropped straight to your wallet.
         </p>
         <p className="mt-3 border-l-2 border-[var(--color-orange)] pl-3 text-sm text-[var(--text-soft)]">
           If anything ever asks you to connect a wallet or sign to &quot;claim rewards&quot; from
@@ -70,8 +63,7 @@ export function EligibilityPanel({
     );
   }
 
-  const target = account.balance >= fullAt ? fullAt : eligibleAt;
-  const progress = Math.min(100, (account.balance / target) * 100);
+  const progress = Math.min(100, (account.balance / eligibleAt) * 100);
 
   return (
     <div className="bracket border rule bg-[var(--ground-raised)] p-6">
