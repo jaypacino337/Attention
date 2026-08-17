@@ -101,7 +101,7 @@ export default async function HomePage() {
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-20">
           <p className="label">How attention pays</p>
           <h2 className="mt-3 text-4xl font-extrabold tracking-tight md:text-6xl">
-            90% out. <span className="serif-italic font-normal">10% hunting.</span>
+            Attention rewards <span className="serif-italic font-normal">attention</span>.
           </h2>
 
           <div className="mt-10 flex h-3 w-full overflow-hidden">
@@ -116,30 +116,36 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-8 grid gap-px bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-4">
-            {FEE_SPLIT.map((bucket) => (
-              <article key={bucket.id} className="bg-[var(--ground)] p-6">
-                <span className={`block h-1 w-8 ${accentClass[bucket.accent]}`} />
-                <p className="mt-4 font-mono text-4xl font-bold tracking-tight">
-                  {bucket.percent}
-                  <span className="align-super text-lg">%</span>
-                </p>
-                <h3 className="mt-3 font-mono text-sm font-bold uppercase tracking-widest">
-                  {bucket.name}
-                </h3>
-                <p className="mt-1 text-sm font-semibold text-[var(--color-orange)]">
-                  {bucket.tagline}
-                </p>
-              </article>
-            ))}
+            {FEE_SPLIT.map((bucket) => {
+              const lead = bucket.id === "social";
+              return (
+                <article
+                  key={bucket.id}
+                  className={`p-6 ${lead ? "bg-[var(--ground-raised)]" : "bg-[var(--ground)]"}`}
+                >
+                  <span className={`block h-1 ${lead ? "w-full" : "w-8"} ${accentClass[bucket.accent]}`} />
+                  <p className={`mt-4 font-mono font-bold tracking-tight ${lead ? "text-5xl" : "text-4xl"}`}>
+                    {bucket.percent}
+                    <span className="align-super text-lg">%</span>
+                  </p>
+                  <h3 className="mt-3 font-mono text-sm font-bold uppercase tracking-widest">
+                    {bucket.name}
+                  </h3>
+                  <p className="mt-1 text-sm font-semibold text-[var(--color-orange)]">
+                    {bucket.tagline}
+                  </p>
+                  <p className="mt-2 text-xs leading-relaxed text-[var(--text-soft)]">{bucket.detail}</p>
+                </article>
+              );
+            })}
           </div>
 
           <div className="mt-14 grid items-start gap-10 md:grid-cols-2">
             <div>
               <p className="label">The flywheel</p>
               <p className="mt-3 max-w-sm text-sm leading-relaxed text-[var(--text-soft)]">
-                Creator fees reward the people generating attention. A tenth capitalizes the fund
-                that hunts where attention goes next — and what it makes comes back as buyback and
-                burn.
+                Fees reward the people generating attention. The fund hunts where it goes next —
+                realized profits and callout rewards buy back and burn.
               </p>
             </div>
             <Flywheel />
@@ -177,43 +183,49 @@ export default async function HomePage() {
       {/* 5 — EARN ATTENTION */}
       <section id="rewards" className="border-b rule">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-20">
-          <p className="label">The attention flywheel</p>
+          <p className="label">Earn</p>
           <h2 className="mt-3 text-4xl font-extrabold tracking-tight md:text-5xl">
-            Help it grow, <span className="serif-italic font-normal">get paid</span>.
+            Get paid for <span className="serif-italic font-normal">attention</span>.
           </h2>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--text-soft)]">
-            Every fee goes back to the people creating attention for $ATTENTION. Rewards weigh
-            what you hold and what you contribute — and they airdrop automatically.
+            Rewards weigh what you hold and what you contribute — and they airdrop automatically.
           </p>
 
           <div className="mt-10 grid gap-px bg-[var(--line)] md:grid-cols-3">
             {[
               {
                 k: "01",
-                title: "Call it out",
-                body: "Call out $ATTENTION on pump.fun. The wallets making the callouts share the pool, weighted by what they hold — paid near-daily.",
+                title: "Call it",
+                body: "Find attention through pump.fun.",
                 href: LINKS.pumpfun || "/scanner",
                 cta: "See the record",
+                lead: false,
               },
               {
                 k: "02",
-                title: "Spread it",
-                body: "Push $ATTENTION through FOMO. Carry the momentum in an epoch and the pool finds you.",
+                title: "Find it",
+                body: "Surface attention through FOMO.",
                 href: "/scanner",
                 cta: "Open scanner",
+                lead: false,
               },
               {
                 k: "03",
                 title: "Create it",
-                body: "Post $ATTENTION on X and keep it in the feed. The biggest pool — 40% — routes to the wallets behind the attention.",
+                body: "Create and maintain attention on X — the largest allocation.",
                 href: LINKS.x,
                 cta: "Post on X",
+                lead: true,
               },
             ].map((item) => (
               <Link
                 key={item.k}
                 href={item.href}
-                className="group bg-[var(--ground)] p-6 hover:bg-[var(--ground-raised)]"
+                className={`group p-6 ${
+                  item.lead
+                    ? "border-t-2 border-[var(--color-orange)] bg-[var(--ground-raised)]"
+                    : "bg-[var(--ground)] hover:bg-[var(--ground-raised)]"
+                }`}
               >
                 <span className="label">{item.k}</span>
                 <h3 className="mt-2 text-xl font-extrabold tracking-tight">{item.title}</h3>
@@ -232,7 +244,7 @@ export default async function HomePage() {
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-20">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="label">The 10%</p>
+              <p className="label">Protocol capital</p>
               <h2 className="mt-3 text-4xl font-extrabold tracking-tight md:text-5xl">
                 Attention <span className="serif-italic font-normal">Fund</span>
               </h2>
@@ -247,8 +259,9 @@ export default async function HomePage() {
           </div>
 
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--text-soft)]">
-            A portion of creator fees capitalizes the Attention Fund. Trading profits and callout
-            rewards are used to buy back and burn $ATTENTION.
+            A portion of creator fees capitalizes the Attention Fund. It trades attention-driven
+            opportunities and participates in callouts — realized profits and callout rewards buy
+            back and burn $ATTENTION.
           </p>
 
           {fundHasData(fund) ? (
@@ -320,50 +333,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* COMING NEXT */}
-      <section className="border-b rule">
-        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
-          <p className="label">Coming next</p>
-          <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-4xl">
-            The scanner goes <span className="serif-italic font-normal">live</span>.
-          </h2>
-          <div className="mt-8 grid gap-px bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                title: "Live scanner feeds",
-                body: "Real-time signal pulled from pump.fun, FOMO and X — calls fire from data, not vibes.",
-              },
-              {
-                title: "X attention rewards",
-                body: "Measured reach on X, paid to the wallet behind the attention.",
-              },
-              {
-                title: "Fund transparency",
-                body: "Every fund trade, buyback and burn on the dashboard with explorer links.",
-              },
-              {
-                title: "Paid attention",
-                body: "Projects pay to get attention across the protocol.",
-              },
-            ].map((item) => (
-              <div key={item.title} className="bg-[var(--ground)] p-6">
-                <span className="block h-1 w-8 bg-[var(--color-orange)]" />
-                <h3 className="mt-4 font-bold">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--text-soft)]">{item.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="blueprint">
         <div className="mx-auto max-w-6xl px-5 py-16 text-center md:py-20">
           <h2 className="mx-auto max-w-2xl text-4xl font-extrabold tracking-tight md:text-6xl">
-            Attention is <span className="serif-italic font-normal">currency</span>.
+            Find it. Create it. <span className="serif-italic font-normal">Get rewarded for it.</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-md text-sm text-[var(--text-soft)]">
-            Create attention. Earn $ATTENTION.
+          <p className="mx-auto mt-4 max-w-md text-lg font-bold">
+            Attention is <span className="serif-italic font-normal text-[var(--color-orange)]">currency</span>.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link

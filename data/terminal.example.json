@@ -1,15 +1,22 @@
 {
-  "_how_to_use": "Copy this file to data/terminal.json, replace the rows with real numbers, and commit. Vercel redeploys automatically and the terminal shows your data with a 'curated by the team' badge. Any of the four keys may be omitted. Delete data/terminal.json to go back to sample data.",
-  "topWallets": [
-    { "address": "7Xk9…q2Rm", "label": "scanner", "pnl7d": 412.6, "winRate": 0.71, "callouts": 34 }
-  ],
+  "_how_to_use": "Copy this file to data/terminal.json, replace the example rows with real numbers, and commit. Vercel redeploys automatically and the terminal shows your data with a 'curated by the team' note. Any key may be omitted. Delete data/terminal.json to return to the scanning (empty) state. Real numbers only \u2014 the site never invents data.",
   "topCallers": [
-    { "handle": "caller_one", "wallet": "7Xk9…q2Rm", "landed": 18, "avgMultiple": 3.4, "reach": 1240000 }
+    {
+      "handle": "example_handle",
+      "wallet": "WALLET\u2026SHORT",
+      "landed": 0,
+      "avgMultiple": 1.0,
+      "reach": 0
+    }
   ],
   "meta": [
-    { "meta": "AI agents", "chain": "Solana", "share": 0.31, "change24h": 0.06 }
+    {
+      "meta": "Example narrative",
+      "chain": "Solana",
+      "share": 0.5,
+      "change24h": 0.1
+    }
   ],
-  "chains": [
-    { "chain": "Solana", "share": 0.68, "net24h": 12.4 }
-  ]
+  "topWallets": [],
+  "chains": []
 }

@@ -88,11 +88,11 @@ Verified working (see `npm test` and the checks below):
 
 Deliberately stubbed, and labelled as such in the UI:
 
-- **Terminal data** (`lib/terminal.ts`) returns sample rows and reports
-  `source: "sample"`; the terminal renders a visible *"sample data — live feeds not
-  connected"* badge. Swap the body of `getTerminalFeed()` for real reads (Helius /
-  Birdeye / Dune for flow and holders, an X listener for social velocity) and return
-  `source: "live"`. No UI change needed.
+- **Terminal data** (`lib/terminal.ts`) serves NO sample rows: the feed is empty
+  (`source: "empty"`, rendered as a scanning state) until data/terminal.json is
+  curated (`source: "manual"`) or live reads land (`source: "live"`). Swap the body
+  of `getTerminalFeed()` for real reads when integrations arrive; no UI change
+  needed.
 - **X verification.** A handle submitted from the account page is stored
   `verified: false`. Self-declaring a handle proves nothing, so `distributeEpoch()`
   pays the social pool **only** to verified links. Wire X OAuth 2.0 (PKCE) and flip

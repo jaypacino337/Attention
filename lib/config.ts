@@ -42,27 +42,25 @@ export const FEE_SPLIT = [
     id: "callouts",
     percent: 25,
     name: "Pump.fun",
-    tagline: "Call out $ATTENTION.",
-    detail:
-      "Rewards the people calling out $ATTENTION on pump.fun. Weighted by what you hold and the callouts you make — paid out near-daily.",
+    tagline: "Call attention early.",
+    detail: "Rewards people who identify attention through pump.fun callouts.",
     accent: "orange",
   },
   {
     id: "fomo",
     percent: 25,
     name: "FOMO",
-    tagline: "Spread it through FOMO.",
-    detail:
-      "Rewards for pushing $ATTENTION through FOMO — the wallets carrying the momentum each epoch get the pool.",
+    tagline: "Find attention early.",
+    detail: "Rewards people who identify attention through FOMO.",
     accent: "ink",
   },
   {
     id: "social",
     percent: 40,
     name: "X",
-    tagline: "Create and maintain attention.",
+    tagline: "Create attention.",
     detail:
-      "The biggest pool. Post $ATTENTION on X, keep it in the feed, and rewards route to the wallet behind the attention.",
+      "The largest allocation — rewards creating and maintaining attention around $ATTENTION on X.",
     accent: "lime",
   },
   {
@@ -70,8 +68,7 @@ export const FEE_SPLIT = [
     percent: 10,
     name: "Attention Fund",
     tagline: "Hunt where attention goes next.",
-    detail:
-      "Capitalizes the Attention Fund. It trades attention-driven opportunities and makes its own callouts — realized profits and callout rewards buy back and burn $ATTENTION.",
+    detail: "Protocol capital trading attention-driven opportunities and joining callouts.",
     accent: "orange",
   },
 ] as const;

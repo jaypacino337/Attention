@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { AttentionRow, LiveAttention } from "@/lib/live";
+import { Scanning } from "./scanning";
 
 /**
  * The Live Attention module: TRENDING / CALLOUTS / X ATTENTION / SCANNER.
@@ -21,10 +22,10 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 const EMPTY_COPY: Record<TabId, string> = {
-  trending: "No trending feed yet. The terminal lights this up as curation and live signals land.",
-  callouts: "No callouts on record yet. Every pump.fun and FOMO call will appear here — permanently.",
-  xattention: "X attention tracking arrives with account linking. Nothing is shown until it's real.",
-  scanner: "The scanner hasn't published calls yet. When it does, the full history lives here — hits and misses.",
+  trending: "Live signals appear here as they are detected.",
+  callouts: "Callouts appear here as they fire — and stay, permanently.",
+  xattention: "Post $ATTENTION on X. Measured attention appears here.",
+  scanner: "Scanner detections appear here as attention forms.",
 };
 
 const pct = (n: number) => `${n >= 0 ? "+" : ""}${(n * 100).toFixed(0)}%`;
@@ -150,12 +151,7 @@ export function LiveAttentionModule({ data }: { data: LiveAttention }) {
       </div>
 
       {rows.length === 0 ? (
-        <div className="px-6 py-12 text-center">
-          <p className="font-mono text-xs uppercase tracking-widest text-[var(--text-faint)]">
-            awaiting signal
-          </p>
-          <p className="mx-auto mt-3 max-w-sm text-sm text-[var(--text-soft)]">{EMPTY_COPY[tab]}</p>
-        </div>
+        <Scanning title="Scanning for attention" line={EMPTY_COPY[tab]} />
       ) : (
         <div>
           {rows.slice(0, 8).map((row) => (

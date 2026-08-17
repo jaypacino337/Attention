@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AdSlot } from "@/components/ad-slot";
 import { ConnectButton, ConnectError } from "@/components/connect-button";
 import { TerminalPanels } from "@/components/terminal-panels";
 import { loadAccount } from "@/lib/account";
@@ -24,6 +23,10 @@ function Shell({ children }: { children: React.ReactNode }) {
       <h1 className="mt-3 text-4xl font-extrabold tracking-tight md:text-5xl">
         Attention <span className="serif-italic font-normal">Terminal</span>
       </h1>
+      <p className="mt-3 max-w-md text-sm text-[var(--text-soft)]">
+        Where attention is <strong className="text-[var(--text)]">now</strong>. For where it may be
+        going next, open the <a href="/scanner" className="font-semibold text-[var(--color-orange)] underline underline-offset-4">Scanner</a>.
+      </p>
       {children}
     </section>
   );
@@ -40,22 +43,11 @@ export default async function TerminalPage() {
     ]);
     return (
       <Shell>
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          {feed.source === "sample" ? (
-            <span className="border border-dashed rule px-2 py-1 text-xs font-semibold text-[var(--text-soft)]">
-              sample data — live feeds not connected
-            </span>
-          ) : feed.source === "manual" ? (
-            <span className="border border-dashed rule px-2 py-1 text-xs font-semibold text-[var(--text-soft)]">
-              curated by the team
-            </span>
-          ) : null}
-        </div>
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
+        {feed.source === "manual" ? (
+          <p className="label mt-6">curated by the team</p>
+        ) : null}
+        <div className="mt-8">
           <TerminalPanels feed={feed} scannerCalls={scannerCalls} leaderboard={leaderboard} />
-          <aside className="space-y-6">
-            <AdSlot slot="terminal" label="Terminal sidebar" size="400 × 300" />
-          </aside>
         </div>
       </Shell>
     );
@@ -124,22 +116,11 @@ export default async function TerminalPage() {
         <span className="text-sm text-[var(--text-soft)]">
           {fmt(account.balance)} {TOKEN.symbol}
         </span>
-        {feed.source === "sample" ? (
-          <span className="border border-dashed rule px-2 py-1 text-xs font-semibold text-[var(--text-soft)]">
-            sample data — live feeds not connected
-          </span>
-        ) : feed.source === "manual" ? (
-          <span className="border border-dashed rule px-2 py-1 text-xs font-semibold text-[var(--text-soft)]">
-            curated by the team
-          </span>
-        ) : null}
+        {feed.source === "manual" ? <span className="label">curated by the team</span> : null}
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
+      <div className="mt-8">
         <TerminalPanels feed={feed} scannerCalls={scannerCalls} leaderboard={leaderboard} />
-        <aside className="space-y-6">
-          <AdSlot slot="terminal" label="Terminal sidebar" size="400 × 300" />
-        </aside>
       </div>
     </Shell>
   );

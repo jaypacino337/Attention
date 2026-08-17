@@ -1,14 +1,11 @@
 /**
- * Attention Terminal feed.
+ * Attention Terminal feed — where attention is NOW.
+ * (The Scanner is where attention may be going next.)
  *
- * The shapes below are the contract the terminal UI renders against. The
- * current implementation returns SAMPLE data, clearly flagged as such by
- * `source: "sample"` — the site would rather show a labelled placeholder than
- * present invented numbers as live market intelligence.
- *
- * To go live, replace the body of `getTerminalFeed` with real reads (Helius /
- * Birdeye / Dune for flow and holders, an X listener for social velocity) and
- * return `source: "live"`. Nothing in the UI needs to change.
+ * There is no sample data served here. The feed is empty until either the
+ * team curates data/terminal.json (source: "manual") or live integrations
+ * land (source: "live"). Empty sections render as an active scanning state —
+ * real data > empty state > fake data, always.
  */
 
 export type TopWallet = {
@@ -37,8 +34,8 @@ export type MetaRow = {
 export type ChainFlow = { chain: string; share: number; net24h: number };
 
 export type TerminalFeed = {
-  /** sample = placeholder; manual = curated via data/terminal.json; live = API-fed. */
-  source: "sample" | "manual" | "live";
+  /** empty = nothing yet; manual = curated via data/terminal.json; live = API-fed. */
+  source: "empty" | "manual" | "live";
   updatedAt: string;
   topWallets: TopWallet[];
   topCallers: TopCaller[];
@@ -46,46 +43,19 @@ export type TerminalFeed = {
   chains: ChainFlow[];
 };
 
-const SAMPLE: Omit<TerminalFeed, "updatedAt" | "source"> = {
-  topWallets: [
-    { address: "7Xk9…q2Rm", label: "scanner", pnl7d: 412.6, winRate: 0.71, callouts: 34 },
-    { address: "9fTa…LmZ4", label: "early", pnl7d: 288.1, winRate: 0.64, callouts: 21 },
-    { address: "Bq3n…Wd8s", label: "rotator", pnl7d: 173.9, winRate: 0.58, callouts: 17 },
-    { address: "Hn5v…Tc1p", label: "sniper", pnl7d: 96.4, winRate: 0.53, callouts: 12 },
-  ],
-  topCallers: [
-    { handle: "caller_one", wallet: "7Xk9…q2Rm", landed: 18, avgMultiple: 3.4, reach: 1_240_000 },
-    { handle: "caller_two", wallet: "9fTa…LmZ4", landed: 12, avgMultiple: 2.8, reach: 860_000 },
-    { handle: "caller_three", wallet: "Bq3n…Wd8s", landed: 9, avgMultiple: 2.1, reach: 410_000 },
-  ],
-  meta: [
-    { meta: "AI agents", chain: "Solana", share: 0.31, change24h: 0.06 },
-    { meta: "Attention / social", chain: "Solana", share: 0.24, change24h: 0.11 },
-    { meta: "Dog derivatives", chain: "Solana", share: 0.18, change24h: -0.04 },
-    { meta: "Base memes", chain: "Base", share: 0.15, change24h: 0.02 },
-    { meta: "Everything else", chain: "—", share: 0.12, change24h: -0.03 },
-  ],
-  chains: [
-    { chain: "Solana", share: 0.68, net24h: 12.4 },
-    { chain: "Base", share: 0.19, net24h: 3.1 },
-    { chain: "BNB", share: 0.08, net24h: -1.2 },
-    { chain: "Ethereum", share: 0.05, net24h: -0.4 },
-  ],
-};
+type ManualFeed = Partial<Pick<TerminalFeed, "topWallets" | "topCallers" | "meta" | "chains">>;
 
 /**
- * Manual override: commit real numbers to data/terminal.json (same shape as
- * SAMPLE, all four keys optional — missing ones fall back to sample rows).
- * Editing that file in the GitHub web UI triggers a redeploy, so curating the
- * terminal by hand needs no tooling at all. Delete the file to return to
- * sample data.
+ * Manual curation: commit real numbers to data/terminal.json (see
+ * data/terminal.example.json for the shape; all keys optional). Editing the
+ * file on GitHub triggers a redeploy. Delete it to return to the empty state.
  */
-async function readManualFeed(): Promise<Partial<typeof SAMPLE> | null> {
+async function readManualFeed(): Promise<ManualFeed | null> {
   try {
     const fs = await import("node:fs/promises");
     const path = await import("node:path");
     const raw = await fs.readFile(path.join(process.cwd(), "data", "terminal.json"), "utf8");
-    const parsed = JSON.parse(raw) as Partial<typeof SAMPLE>;
+    const parsed = JSON.parse(raw) as ManualFeed;
     return typeof parsed === "object" && parsed !== null ? parsed : null;
   } catch {
     return null;
@@ -98,11 +68,18 @@ export async function getTerminalFeed(): Promise<TerminalFeed> {
     return {
       source: "manual",
       updatedAt: new Date().toISOString(),
-      topWallets: manual.topWallets ?? SAMPLE.topWallets,
-      topCallers: manual.topCallers ?? SAMPLE.topCallers,
-      meta: manual.meta ?? SAMPLE.meta,
-      chains: manual.chains ?? SAMPLE.chains,
+      topWallets: manual.topWallets ?? [],
+      topCallers: manual.topCallers ?? [],
+      meta: manual.meta ?? [],
+      chains: manual.chains ?? [],
     };
   }
-  return { source: "sample", updatedAt: new Date().toISOString(), ...SAMPLE };
+  return {
+    source: "empty",
+    updatedAt: new Date().toISOString(),
+    topWallets: [],
+    topCallers: [],
+    meta: [],
+    chains: [],
+  };
 }

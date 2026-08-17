@@ -1,4 +1,5 @@
 import type { ScannerCallView } from "@/lib/scanner";
+import { Scanning } from "./scanning";
 
 const pct = (n: number) => `${n >= 0 ? "+" : ""}${(n * 100).toFixed(0)}%`;
 const usd = (n: number) =>
@@ -20,14 +21,8 @@ function date(iso: string): string {
 
 export function ScannerEmpty() {
   return (
-    <div className="border border-dashed rule px-6 py-14 text-center">
-      <p className="font-mono text-xs uppercase tracking-widest text-[var(--text-faint)]">
-        no calls published yet
-      </p>
-      <p className="mx-auto mt-3 max-w-md text-sm text-[var(--text-soft)]">
-        When the scanner starts publishing, its full history lives here permanently — the hits and
-        the misses. Bad calls get closed, never deleted.
-      </p>
+    <div className="border border-dashed rule">
+      <Scanning line="Calls publish here as attention forms — and stay here permanently, hits and misses alike." />
     </div>
   );
 }

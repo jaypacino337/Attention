@@ -70,15 +70,16 @@ export default async function FundPage() {
 
   return (
     <section className="mx-auto max-w-5xl px-5 py-12 md:py-16">
-      <p className="label">The 10%</p>
+      <p className="label">Protocol capital</p>
       <h1 className="mt-3 text-4xl font-extrabold tracking-tight md:text-6xl">
         Attention <span className="serif-italic font-normal">Fund</span>
       </h1>
       <p className="mt-3 text-lg font-bold">Trading where attention goes next.</p>
       <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--text-soft)]">
         A portion of creator fees capitalizes the Attention Fund. It trades attention-driven
-        opportunities and makes its own callouts; realized profits and callout rewards buy back and
-        burn $ATTENTION. Every number here is real and linked to the chain — losses included.
+        opportunities and participates in callouts. Realized profits and callout rewards are used
+        to buy back and burn $ATTENTION. Every number here is real and linked to the chain —
+        losses included.
       </p>
       {fund.updatedAt ? <p className="label mt-3">updated {date(fund.updatedAt)}</p> : null}
 

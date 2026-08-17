@@ -7,9 +7,7 @@ import { getTerminalFeed } from "./terminal";
  * component.
  *
  * Sources are the real, curated data files (scanner.json / terminal.json).
- * A tab with no real data returns [] and the UI renders its empty state —
- * the terminal's sample rows are explicitly NOT used here, because the
- * homepage module presents rows as live intelligence.
+ * A tab with no real data returns [] and the UI renders the scanning state.
  */
 
 export type AttentionRow = {
@@ -52,7 +50,7 @@ export async function loadLiveAttention(): Promise<LiveAttention> {
 
   // Terminal data feeds TRENDING and X ATTENTION only when it is curated or
   // live — never from the built-in sample rows.
-  const curated = feed.source !== "sample";
+  const curated = feed.source !== "empty";
 
   return {
     scanner: calls.map(fromScanner),

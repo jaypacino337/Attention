@@ -2,6 +2,8 @@ import type { TerminalFeed } from "@/lib/terminal";
 import type { ScannerCallView } from "@/lib/scanner";
 import type { Leaderboard } from "@/lib/leaderboard";
 import { ScannerTable } from "./scanner-table";
+import { Scanning } from "./scanning";
+import { XLeaderboard } from "./x-leaderboard";
 
 const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
 const signed = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(1)}`;
@@ -33,143 +35,85 @@ export function TerminalPanels({
   scannerCalls: ScannerCallView[];
   leaderboard: Leaderboard | null;
 }) {
-  // Real on-chain holders when the scan is live; curated/sample feed otherwise.
-  const holdersTable = leaderboard ? (
-    <table className="w-full text-sm">
-      <thead>
-        <tr className="label">
-          <th className="pb-2 text-left font-normal">Holder</th>
-          <th className="pb-2 text-right font-normal">Balance</th>
-          <th className="pb-2 text-right font-normal">Tier</th>
-        </tr>
-      </thead>
-      <tbody className="font-mono">
-        {leaderboard.top.slice(0, 10).map((entry) => (
-          <tr key={entry.owner} className="border-t rule">
-            <td className="py-2" title={entry.owner}>
-              {entry.display}
-            </td>
-            <td className="py-2 text-right">{entry.balance.toLocaleString("en-US")}</td>
-            <td className="py-2 text-right text-[var(--text-faint)]">{entry.tier}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  ) : null;
-
-  const wallets = (
-    <table className="w-full text-sm">
-      <thead>
-        <tr className="label">
-          <th className="pb-2 text-left font-normal">Wallet</th>
-          <th className="pb-2 text-right font-normal">7d PnL</th>
-          <th className="pb-2 text-right font-normal">Win</th>
-          <th className="pb-2 text-right font-normal">Calls</th>
-        </tr>
-      </thead>
-      <tbody className="font-mono">
-        {feed.topWallets.map((wallet) => (
-          <tr key={wallet.address} className="border-t rule">
-            <td className="py-2">
-              {wallet.address}
-              <span className="ml-2 font-sans text-xs text-[var(--text-faint)]">{wallet.label}</span>
-            </td>
-            <td className="py-2 text-right text-[var(--color-orange)]">{signed(wallet.pnl7d)}</td>
-            <td className="py-2 text-right">{pct(wallet.winRate)}</td>
-            <td className="py-2 text-right">{wallet.callouts}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-
-  const chains = (
-    <ul className="space-y-3">
-      {feed.chains.map((chain) => (
-        <li key={chain.chain}>
-          <div className="flex items-baseline justify-between text-sm">
-            <span className="font-semibold">{chain.chain}</span>
-            <span className="font-mono text-[var(--text-soft)]">
-              {pct(chain.share)} · {signed(chain.net24h)}
-            </span>
-          </div>
-          <div className="mt-1 h-1 w-full bg-[var(--line)]">
-            <div
-              className="h-full bg-[var(--color-orange)]"
-              style={{ width: `${chain.share * 100}%` }}
-            />
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-
   return (
     <div className="grid gap-6">
-      <Panel title="Scanner" note={`${scannerCalls.length} calls on record`}>
+      <Panel title="X Attention" note="40% of creator fees">
+        <XLeaderboard
+          rows={feed.topCallers.map((caller) => ({
+            handle: caller.handle,
+            wallet: caller.wallet,
+            landed: caller.landed,
+            views: caller.reach,
+          }))}
+        />
+      </Panel>
+
+      <Panel title="Trending" note="24h rotation">
+        {feed.meta.length === 0 ? (
+          <Scanning title="Scanning for signal" line="Narrative rotation appears here as it is measured." compact />
+        ) : (
+          <ul className="space-y-3">
+            {feed.meta.map((row) => (
+              <li key={row.meta} className="flex items-center gap-3">
+                <span className="w-40 shrink-0 truncate text-sm font-semibold">{row.meta}</span>
+                <div className="h-2 flex-1 bg-[var(--line)]">
+                  <div
+                    className="h-full bg-[var(--text)]"
+                    style={{ width: `${row.share * 100}%` }}
+                  />
+                </div>
+                <span className="w-12 text-right font-mono text-xs">{pct(row.share)}</span>
+                <span
+                  className={`w-14 text-right font-mono text-xs ${
+                    row.change24h >= 0 ? "text-[var(--color-orange)]" : "text-[var(--text-faint)]"
+                  }`}
+                >
+                  {signed(row.change24h * 100)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+
+      <Panel title="Scanner" note={scannerCalls.length > 0 ? `${scannerCalls.length} calls on record` : "next"}>
         {scannerCalls.length === 0 ? (
-          <p className="py-2 text-sm text-[var(--text-soft)]">
-            No scanner calls published yet. The permanent record appears here the moment the first
-            call fires.
-          </p>
+          <Scanning line="Scanner calls publish here — and stay here, hits and misses alike." compact />
         ) : (
           <ScannerTable calls={scannerCalls.slice(0, 4)} />
         )}
       </Panel>
 
-      <Panel title="X Attention" note="landed calls">
-        <ul className="divide-y rule">
-          {feed.topCallers.map((caller, index) => (
-            <li key={caller.handle} className="flex items-center gap-4 py-3">
-              <span className="font-mono text-sm text-[var(--text-faint)]">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold">@{caller.handle}</p>
-                <p className="font-mono text-xs text-[var(--text-faint)]">{caller.wallet}</p>
-              </div>
-              <div className="text-right text-sm">
-                <p className="font-mono font-bold">{caller.avgMultiple.toFixed(1)}x</p>
-                <p className="text-xs text-[var(--text-faint)]">{caller.landed} landed</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </Panel>
-
-      <Panel title="Trending" note="24h rotation">
-        <ul className="space-y-3">
-          {feed.meta.map((row) => (
-            <li key={row.meta} className="flex items-center gap-3">
-              <span className="w-40 shrink-0 truncate text-sm font-semibold">{row.meta}</span>
-              <div className="h-2 flex-1 bg-[var(--line)]">
-                <div
-                  className="h-full bg-[var(--text)]"
-                  style={{ width: `${row.share * 100}%` }}
-                />
-              </div>
-              <span className="w-12 text-right font-mono text-xs">{pct(row.share)}</span>
-              <span
-                className={`w-14 text-right font-mono text-xs ${
-                  row.change24h >= 0 ? "text-[var(--color-orange)]" : "text-[var(--text-faint)]"
-                }`}
-              >
-                {signed(row.change24h * 100)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </Panel>
-
       <Panel
-        title={leaderboard ? "Top holders" : "Top wallets"}
-        note={leaderboard ? `on-chain · ${leaderboard.eligibleHolders} eligible` : "7d"}
+        title="Top holders"
+        note={leaderboard ? `on-chain · ${leaderboard.eligibleHolders} eligible` : "on-chain"}
       >
-        {holdersTable ?? wallets}
-      </Panel>
-
-      <Panel title="Chain flow" note="24h net">
-        {chains}
+        {leaderboard ? (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="label">
+                <th className="pb-2 text-left font-normal">Holder</th>
+                <th className="pb-2 text-right font-normal">Balance</th>
+              </tr>
+            </thead>
+            <tbody className="font-mono">
+              {leaderboard.top.slice(0, 10).map((entry) => (
+                <tr key={entry.owner} className="border-t rule">
+                  <td className="py-2" title={entry.owner}>
+                    {entry.display}
+                  </td>
+                  <td className="py-2 text-right">{entry.balance.toLocaleString("en-US")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <Scanning
+            title="Reading the chain"
+            line="The holder leaderboard builds from the on-chain scan once the token is live."
+            compact
+          />
+        )}
       </Panel>
     </div>
   );
