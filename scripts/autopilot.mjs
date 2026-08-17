@@ -76,8 +76,32 @@ if (!claimPath && revenueOverride === undefined) {
   process.exit(1);
 }
 
-const loadKeypair = (path) =>
-  Keypair.fromSecretKey(Uint8Array.from(JSON.parse(fs.readFileSync(path, "utf8"))));
+function decodeBase58(text) {
+  const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  const bytes = [0];
+  for (const char of text.trim()) {
+    const value = ALPHABET.indexOf(char);
+    if (value < 0) throw new Error("not base58");
+    let carry = value;
+    for (let i = 0; i < bytes.length; i += 1) {
+      carry += bytes[i] * 58;
+      bytes[i] = carry & 0xff;
+      carry >>= 8;
+    }
+    while (carry > 0) {
+      bytes.push(carry & 0xff);
+      carry >>= 8;
+    }
+  }
+  return Uint8Array.from(bytes.reverse());
+}
+
+/** Reads a keypair file: either Phantom's exported base58 string or a JSON byte array. */
+const loadKeypair = (path) => {
+  const raw = fs.readFileSync(path, "utf8").trim();
+  if (raw.startsWith("[")) return Keypair.fromSecretKey(Uint8Array.from(JSON.parse(raw)));
+  return Keypair.fromSecretKey(decodeBase58(raw));
+};
 
 const connection = new Connection(RPC_URL, "confirmed");
 const sol = (lamports) => lamports / LAMPORTS_PER_SOL;
