@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+/**
+ * Brand tokens, taken from the Attention Markets mark: paper ground, near
+ * black ink, an orange node and a lime satellite.
+ *
+ * Fonts are deliberately system stacks rather than next/font/google — the
+ * build must not depend on fetching a font at compile time.
+ */
+@theme {
+  --color-paper: #f4f2ee;
+  --color-paper-raised: #faf9f6;
+  --color-ink: #14110f;
+  --color-ink-soft: #4a4643;
+  --color-ink-faint: #8a8480;
+  --color-rule: #ddd8d0;
+  --color-orange: #f4501e;
+  --color-orange-soft: #fde4dc;
+  --color-lime: #b6cf3f;
+
+  --font-sans: "Helvetica Neue", Helvetica, Inter, system-ui, -apple-system, Arial, sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+:root {
+  --ground: var(--color-paper);
+  --ground-raised: var(--color-paper-raised);
+  --text: var(--color-ink);
+  --text-soft: var(--color-ink-soft);
+  --text-faint: var(--color-ink-faint);
+  --line: var(--color-rule);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #100e0d;
+    --ground-raised: #1a1716;
+    --text: #f4f2ee;
+    --text-soft: #b8b2ac;
+    --text-faint: #7d7772;
+    --line: #2e2a28;
+  }
+}
+
+body {
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Blueprint ground: the faint grid from the brand banner. */
+.blueprint {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.rule {
+  border-color: var(--line);
+}
+
+/* Corner brackets used on framed panels in the brand system. */
+.bracket {
+  position: relative;
+}
+.bracket::before,
+.bracket::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--color-orange);
+  border-style: solid;
+  border-width: 0;
+}
+.bracket::before {
+  top: -1px;
+  left: -1px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+.bracket::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+}
+
+.serif-italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+@keyframes orbit-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+.orbit-node {
+  animation: orbit-pulse 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-node {
+    animation: none;
+  }
+}
