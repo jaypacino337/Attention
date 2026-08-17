@@ -26,8 +26,13 @@
  *   node scripts/autopilot.mjs --claim dev.txt --token-pool 5000000 --send
  *   (mint comes from ATTENTION_MINT env or --mint <address>)
  *
- * Automate with cron (runs daily at 18:00, your machine must be on):
- *   0 18 * * *  cd /path/to/Attention && node scripts/autopilot.mjs --claim ~/dev.json --pay ~/payer.json --send >> autopilot.log 2>&1
+ * Automate hourly with cron (machine must be on):
+ *   0 * * * *  cd /path/to/Attention && node scripts/autopilot.mjs --claim dev.txt --send >> autopilot.log 2>&1
+ *
+ * Diamond-hands rules (state kept locally in holders-state.json):
+ *   - sell >50% of your peak balance -> ineligible until rebuilt (--sell-limit)
+ *   - each consecutive epoch held -> +10% weight, capped at 2x
+ *   - callout credits in callouts.json ({"WALLET": count}) -> +25% each, capped at 2x
  *
  * Safety rails: dry run by default; balance preflight; dust guard; a failed
  * recipient never stops the rest; the claim wallet is only ever used to claim,
@@ -65,6 +70,16 @@ const tokenPool = flag("token-pool") ? Number(flag("token-pool")) : undefined;
 const mintAddress = flag("mint") ?? process.env.ATTENTION_MINT ?? process.env.NEXT_PUBLIC_ATTENTION_MINT;
 const TOKEN_DECIMALS = Number(process.env.ATTENTION_DECIMALS ?? 6);
 const send = has("send");
+/** Sold more than this fraction of your peak balance -> ineligible until you rebuild. */
+const SELL_LIMIT = Number(flag("sell-limit") ?? 0.5);
+/** Per-epoch holding-streak bonus and its cap (0.1 -> +10%/epoch, max 2x). */
+const STREAK_BONUS = 0.1;
+const STREAK_CAP = 2.0;
+/** Per-callout bonus and its cap (0.25 -> +25%/callout, max 2x). */
+const CALLOUT_BONUS = 0.25;
+const CALLOUT_CAP = 2.0;
+const statePath = flag("state") ?? "holders-state.json";
+const calloutsPath = flag("callouts") ?? "callouts.json";
 
 const SITE_URL = process.env.SITE_URL ?? "https://attnmarkets.fun";
 const ADMIN_KEY = process.env.ADMIN_KEY;
@@ -192,30 +207,63 @@ if (!sheetResponse.ok) {
 }
 log(`sheet: ${sheet.eligibleHolders} eligible holders, revenue ${revenue} SOL`);
 
-// Only the holder-proportional pool is auto-payable; callout/social pools
-// need scores attached and are reported unclaimed by the sheet.
-const rawShares = (sheet.payouts ?? []).map((p) => ({
-  wallet: p.wallet,
-  share: p.amounts?.fomo ?? 0,
-}));
+// ---------- diamond-hands engine (state lives on THIS machine) ----------
+// Rules, in plain words:
+//   SELL PENALTY  sold more than SELL_LIMIT (default 50%) of your peak
+//                 balance -> ineligible until you rebuild above that line.
+//   HOLD STREAK   every consecutive epoch you hold (>=90% of last balance)
+//                 adds +10% weight, capped at 2x.
+//   CALLOUTS      each callout you credit in callouts.json adds +25%,
+//                 capped at 2x. { "WALLET_ADDRESS": 3, ... }
+// Weight = balance x streak x callouts. State updates only on --send.
+const holders = sheet.holders ?? [];
+if (holders.length === 0) log("no eligible holders in the sheet");
 
-let payouts;
-let unit;
-if (tokenPool !== undefined) {
-  // Split the token pool by each holder's proportional share of holdings.
-  const totalShare = rawShares.reduce((sum, p) => sum + p.share, 0);
-  payouts = rawShares
-    .map((p) => ({ wallet: p.wallet, amount: totalShare > 0 ? (tokenPool * p.share) / totalShare : 0 }))
-    .filter((p) => p.amount >= 1); // dust guard: skip sub-1-token sends
-  unit = "ATTENTION";
-} else {
-  payouts = rawShares
-    .map((p) => ({ wallet: p.wallet, amount: p.share }))
-    .filter((p) => p.amount >= MIN_PAYOUT_SOL);
-  unit = "SOL";
+let state = {};
+try {
+  state = JSON.parse(fs.readFileSync(statePath, "utf8"));
+} catch {
+  log(`no state file yet (${statePath}) — first run, everyone starts fresh`);
 }
+let callouts = {};
+try {
+  callouts = JSON.parse(fs.readFileSync(calloutsPath, "utf8"));
+  log(`callout credits loaded for ${Object.keys(callouts).length} wallets`);
+} catch {
+  // no callouts file: no callout bonuses this run
+}
+
+const weighted = [];
+let benched = 0;
+for (const h of holders) {
+  const prev = state[h.wallet] ?? { peak: h.balance, last: h.balance, streak: 0 };
+  const peak = Math.max(prev.peak, h.balance);
+  const soldFraction = peak > 0 ? 1 - h.balance / peak : 0;
+  const held = h.balance >= prev.last * 0.9;
+  const streak = held ? prev.streak + 1 : 0;
+  state[h.wallet] = { peak, last: h.balance, streak };
+
+  if (soldFraction > SELL_LIMIT) {
+    benched += 1;
+    continue; // sold too much off the top -> no payout this epoch
+  }
+  const streakMult = Math.min(STREAK_CAP, 1 + streak * STREAK_BONUS);
+  const calloutMult = Math.min(CALLOUT_CAP, 1 + (Number(callouts[h.wallet]) || 0) * CALLOUT_BONUS);
+  weighted.push({ wallet: h.wallet, weight: h.balance * streakMult * calloutMult });
+}
+if (benched > 0) log(`sell penalty: ${benched} wallet(s) benched (sold >${SELL_LIMIT * 100}% of peak)`);
+
+const totalWeight = weighted.reduce((sum, p) => sum + p.weight, 0);
+const pool = tokenPool !== undefined ? tokenPool : (sheet.buckets?.fomo ?? 0);
+const unit = tokenPool !== undefined ? "ATTENTION" : "SOL";
+const minSend = tokenPool !== undefined ? 1 : MIN_PAYOUT_SOL;
+
+const payouts = weighted
+  .map((p) => ({ wallet: p.wallet, amount: totalWeight > 0 ? (pool * p.weight) / totalWeight : 0 }))
+  .filter((p) => p.amount >= minSend)
+  .sort((a, b) => b.amount - a.amount);
 const totalPay = payouts.reduce((sum, p) => sum + p.amount, 0);
-log(`payable now (holder pool): ${payouts.length} wallets, ${totalPay.toFixed(unit === "SOL" ? 4 : 0)} ${unit}`);
+log(`payable now: ${payouts.length} wallets, ${totalPay.toFixed(unit === "SOL" ? 4 : 0)} ${unit} (weighted by hold streaks + callouts)`);
 
 // ---------- 3. airdrop ----------
 const payer = loadKeypair(payPath ?? claimPath);
@@ -295,3 +343,5 @@ for (const p of payouts) {
   }
 }
 log(`airdrop complete: ${sent}/${payouts.length} confirmed`);
+fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+log(`holder state saved to ${statePath} — sell penalties and streaks carry to the next run`);

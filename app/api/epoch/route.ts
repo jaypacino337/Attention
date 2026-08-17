@@ -63,6 +63,10 @@ export async function GET(request: Request) {
   return NextResponse.json({
     generatedAt: new Date().toISOString(),
     eligibleHolders: holders.length,
+    // Raw balances so the operator's payout tooling can apply time-based
+    // rules (sell penalties, holding streaks) that need history the
+    // stateless server doesn't keep.
+    holders: holders.map((holder) => ({ wallet: holder.owner, balance: holder.balance })),
     note: "fomo amounts are payable as-is; callout/social pools are unclaimed until scores are assigned",
     ...distribution,
   });
