@@ -6,6 +6,7 @@ import { TerminalPanels } from "@/components/terminal-panels";
 import { loadAccount } from "@/lib/account";
 import { FULL_TIER, TERMINAL_GATE, TOKEN, WALLET_ENABLED } from "@/lib/config";
 import { getTerminalFeed } from "@/lib/terminal";
+import { loadScannerCalls } from "@/lib/scanner";
 
 export const metadata: Metadata = { title: "Attention Terminal" };
 /** Gating depends on a live balance read, so this page can never be static. */
@@ -97,7 +98,7 @@ export default async function TerminalPage() {
     );
   }
 
-  const feed = await getTerminalFeed();
+  const [feed, scannerCalls] = await Promise.all([getTerminalFeed(), loadScannerCalls()]);
   const isOperator = account.balance >= FULL_TIER;
 
   return (
@@ -121,7 +122,12 @@ export default async function TerminalPage() {
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
-        <TerminalPanels feed={feed} isOperator={isOperator} operatorMin={FULL_TIER} />
+        <TerminalPanels
+          feed={feed}
+          scannerCalls={scannerCalls}
+          isOperator={isOperator}
+          operatorMin={FULL_TIER}
+        />
         <aside className="space-y-6">
           <AdSlot slot="terminal" label="Terminal sidebar" size="400 × 300" />
         </aside>

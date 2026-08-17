@@ -41,24 +41,28 @@ export function MarkHero({ className = "h-full w-full" }: { className?: string }
         strokeWidth="1.5"
         transform="rotate(-16 132 108)"
       />
-      <ellipse
-        cx="132"
-        cy="108"
-        rx="112"
-        ry="44"
-        stroke="currentColor"
-        strokeWidth="1.25"
-        strokeDasharray="3 6"
-        transform="rotate(14 132 108)"
-        opacity="0.65"
-      />
+      <g className="orbit-ring">
+        <ellipse
+          cx="132"
+          cy="108"
+          rx="112"
+          ry="44"
+          stroke="currentColor"
+          strokeWidth="1.25"
+          strokeDasharray="3 6"
+          opacity="0.65"
+        />
+        <circle cx="244" cy="108" r="4" fill="var(--color-orange)" />
+      </g>
       <g stroke="var(--color-orange)" strokeWidth="2.5" strokeLinecap="round" opacity="0.9">
         <path d="M56 40c-8 5-13 13-14 22" />
         <path d="M46 32c-11 7-18 18-19 30" />
       </g>
       <circle cx="132" cy="108" r="9" fill="var(--color-orange)" className="orbit-node" />
-      <circle cx="228" cy="82" r="6" fill="var(--color-lime)" />
-      <circle cx="34" cy="140" r="6" fill="currentColor" />
+      <circle cx="228" cy="82" r="6" fill="var(--color-lime)" className="node-blink" />
+      <circle cx="34" cy="140" r="6" fill="currentColor" className="node-blink-slow" />
+      <circle cx="176" cy="52" r="2.5" fill="currentColor" className="node-blink" opacity="0.7" />
+      <circle cx="80" cy="168" r="2.5" fill="var(--color-orange)" className="node-blink-slow" />
     </svg>
   );
 }

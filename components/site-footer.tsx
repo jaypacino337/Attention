@@ -17,11 +17,20 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap items-center gap-6 text-sm text-[var(--text-soft)]">
-          <Link href="/#tokenomics" className="hover:text-[var(--color-orange)]">
-            Fee split
+          <Link href="/scanner" className="hover:text-[var(--color-orange)]">
+            Scanner
           </Link>
           <Link href="/terminal" className="hover:text-[var(--color-orange)]">
             Terminal
+          </Link>
+          <Link href="/fund" className="hover:text-[var(--color-orange)]">
+            Fund
+          </Link>
+          <Link href="/#how" className="hover:text-[var(--color-orange)]">
+            Mechanics
+          </Link>
+          <Link href="/advertise" className="hover:text-[var(--color-orange)]">
+            Advertise
           </Link>
           <a href={LINKS.x} className="hover:text-[var(--color-orange)]">
             X

@@ -39,26 +39,26 @@ export const FEE_SPLIT = [
   {
     id: "callouts",
     percent: 30,
-    name: "Callout Rewards",
-    tagline: "Hold attention. Call it out. Get paid.",
+    name: "Pump.fun",
+    tagline: "Call attention early.",
     detail:
-      "Paid to holders who surface plays early and keep holding them. Rewards weight the call that landed, not the loudest account.",
+      "Callout rewards for surfacing plays on pump.fun before the crowd. Rewards weight the call that landed, not the loudest account.",
     accent: "orange",
   },
   {
     id: "fomo",
     percent: 30,
-    name: "FOMO & Daily",
-    tagline: "A pot that resets every day.",
+    name: "FOMO",
+    tagline: "Find attention early.",
     detail:
-      "Daily distribution to eligible holders, plus FOMO rounds that pay the wallets carrying momentum in that epoch.",
+      "Callout rewards for finding attention through FOMO — paid to the wallets surfacing momentum in each epoch.",
     accent: "ink",
   },
   {
     id: "social",
     percent: 30,
-    name: "X Attention Rewards",
-    tagline: "Post. Get attention. Get paid for it.",
+    name: "X",
+    tagline: "Create and maintain attention.",
     detail:
       "Paid on measured reach from linked X accounts. Your X is bound to your wallet so payouts land where the attention came from.",
     accent: "lime",
@@ -66,10 +66,10 @@ export const FEE_SPLIT = [
   {
     id: "treasury",
     percent: 10,
-    name: "Attention Wallet & Scanner",
-    tagline: "The house trades, then burns.",
+    name: "Attention Fund",
+    tagline: "Hunt where attention goes next.",
     detail:
-      "Funds the Attention wallet and scanner. It trades, makes its own callouts, and earns callout rewards — profit and rewards buy back and burn ATTENTION.",
+      "Capitalizes the Attention Fund. It trades attention-driven opportunities and makes its own callouts — realized profits and callout rewards buy back and burn $ATTENTION.",
     accent: "orange",
   },
 ] as const;
@@ -98,25 +98,26 @@ export const TIERS = [
   },
   {
     id: "base",
-    name: "Watcher",
+    name: "250K",
     min: 250_000,
     weight: 1,
     perks: [
-      "Eligible for callout, daily & FOMO rewards",
+      "Reward eligibility across every pool",
       "Attention Terminal access",
-      "Link X for social rewards",
+      "Scanner access",
+      "Link X for attention rewards",
     ],
   },
   {
     id: "full",
-    name: "Operator",
+    name: "500K",
     min: 500_000,
     weight: 2,
     perks: [
-      "Everything in Watcher",
+      "Everything at 250K",
       "2x reward weight across every pool",
-      "Top wallets, meta rotation & chain-flow panels",
-      "Scanner callouts as they fire",
+      "Advanced Terminal panels",
+      "Scanner calls as they fire",
     ],
   },
 ] as const;
@@ -152,5 +153,5 @@ export function nextTier(balance: number): { tier: Tier; needed: number } | null
 export const LINKS = {
   x: process.env.NEXT_PUBLIC_X_URL ?? "https://x.com",
   pumpfun: process.env.NEXT_PUBLIC_PUMPFUN_URL ?? "",
-  docs: "/#tokenomics",
+  docs: "/#how",
 } as const;

@@ -1,0 +1,20 @@
+{
+  "_how_to_use": "Copy to data/scanner.json and commit real calls only. History is append-only: close bad calls (status CLOSED), never delete them. Required per call: id, asset, calledAt (ISO), reason, status. Statuses: EARLY | HEATING UP | TRENDING | COOLING | CLOSED. Everything else is optional — omit what you don't know rather than guessing.",
+  "calls": [
+    {
+      "id": "example-1",
+      "asset": "Example Token",
+      "ticker": "EXMPL",
+      "platform": "pump.fun",
+      "calledAt": "2026-01-01T12:00:00Z",
+      "mcapAtCall": 85000,
+      "currentMcap": 240000,
+      "peakMcap": 410000,
+      "reason": "Reply velocity 4x in an hour, two large wallets accumulating",
+      "attentionScore": 72,
+      "status": "HEATING UP",
+      "calloutUrl": "https://x.com/example/status/123",
+      "rewardsEarned": 1.4
+    }
+  ]
+}

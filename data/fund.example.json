@@ -1,0 +1,16 @@
+{
+  "_how_to_use": "Copy to data/fund.json and commit real numbers only. Every field optional — the dashboard renders what exists and honest empty states for the rest. Include explorer txUrl links so every number is checkable. Show losses as negative pnlSol; the fund is never presented as always winning.",
+  "updatedAt": "2026-01-01T12:00:00Z",
+  "stats": {
+    "fundValueSol": 0,
+    "realizedPnlSol": 0,
+    "calloutRewardsSol": 0,
+    "attentionBoughtBack": 0,
+    "attentionBurned": 0
+  },
+  "openPositions": [],
+  "closedTrades": [],
+  "callouts": [],
+  "buybacks": [],
+  "burns": []
+}

@@ -146,11 +146,36 @@ detection, and on-chain payout execution.
 There is none. `/api/auth/challenge` and `/api/me` are cheap but hit an RPC. Add
 Vercel KV or Upstash rate limiting before you get attention you did not ask for.
 
+## Product surfaces
+
+- **Homepage** — hero → Live Attention module (Trending / Callouts / X Attention /
+  Scanner tabs) → fee engine + flywheel → Scanner preview → Earn Attention →
+  Fund preview → holder access. Product first, docs second.
+- **/scanner** — the Attention Scanner's permanent public record. Calls live in
+  `data/scanner.json` (append-only: close bad calls, never delete). Template in
+  `data/scanner.example.json`. The Attention Score is modular
+  (`lib/attention-score.ts`) — inputs and weights are data, not a hardcoded formula.
+- **/fund** — transparent Attention Fund dashboard fed by `data/fund.json`
+  (template `data/fund.example.json`): stats, open positions, closed trades,
+  callouts, buyback and burn history, every entry with an explorer link. Renders an
+  honest empty state until real data exists; losses are shown, not hidden.
+- **/advertise** — ad inventory moved off the homepage (attention protocol, not ad
+  network). Same working `ADS_JSON` mechanics.
+- **/terminal** — token-gated; panels: Scanner, X Attention, Trending, plus
+  500K-gated Top Wallets and Chain Flow.
+
+No surface ever shows fake data as real: empty and loading states beat invented
+numbers, and the built-in terminal sample rows are labelled and never used on the
+homepage module.
+
 ## Layout
 
 ```
 app/
-  page.tsx              landing: hero, fee split, tiers, burn loop, terminal teaser, ad space
+  page.tsx              landing: hero, live attention, fee engine, scanner, fund, tiers
+  scanner/page.tsx      permanent scanner record
+  fund/page.tsx         attention fund dashboard
+  advertise/page.tsx    ad inventory (relocated)
   account/page.tsx      wallet status + X linking
   terminal/page.tsx     token-gated terminal (server-side gate)
   api/auth/*            challenge / verify / logout

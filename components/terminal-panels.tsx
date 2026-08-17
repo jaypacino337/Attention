@@ -1,4 +1,6 @@
 import type { TerminalFeed } from "@/lib/terminal";
+import type { ScannerCallView } from "@/lib/scanner";
+import { ScannerTable } from "./scanner-table";
 
 const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
 const signed = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(1)}`;
@@ -30,7 +32,7 @@ function Locked({ min, children }: { min: number; children: React.ReactNode }) {
       </div>
       <div className="absolute inset-0 grid place-items-center bg-[var(--ground-raised)]/70">
         <p className="px-4 text-center text-sm font-semibold">
-          Operator tier — hold {min.toLocaleString("en-US")} ATTENTION
+          Hold {min.toLocaleString("en-US")} $ATTENTION to unlock
         </p>
       </div>
     </div>
@@ -39,10 +41,12 @@ function Locked({ min, children }: { min: number; children: React.ReactNode }) {
 
 export function TerminalPanels({
   feed,
+  scannerCalls,
   isOperator,
   operatorMin,
 }: {
   feed: TerminalFeed;
+  scannerCalls: ScannerCallView[];
   isOperator: boolean;
   operatorMin: number;
 }) {
@@ -95,7 +99,18 @@ export function TerminalPanels({
 
   return (
     <div className="grid gap-6">
-      <Panel title="Top callers" note="landed calls">
+      <Panel title="Scanner" note={`${scannerCalls.length} calls on record`}>
+        {scannerCalls.length === 0 ? (
+          <p className="py-2 text-sm text-[var(--text-soft)]">
+            No scanner calls published yet. The permanent record appears here the moment the first
+            call fires.
+          </p>
+        ) : (
+          <ScannerTable calls={scannerCalls.slice(0, 4)} />
+        )}
+      </Panel>
+
+      <Panel title="X Attention" note="landed calls">
         <ul className="divide-y rule">
           {feed.topCallers.map((caller, index) => (
             <li key={caller.handle} className="flex items-center gap-4 py-3">
@@ -115,7 +130,7 @@ export function TerminalPanels({
         </ul>
       </Panel>
 
-      <Panel title="The meta" note="24h rotation">
+      <Panel title="Trending" note="24h rotation">
         <ul className="space-y-3">
           {feed.meta.map((row) => (
             <li key={row.meta} className="flex items-center gap-3">
@@ -139,11 +154,11 @@ export function TerminalPanels({
         </ul>
       </Panel>
 
-      <Panel title="Top wallets" note={isOperator ? "7d" : "operator only"}>
+      <Panel title="Top wallets" note={isOperator ? "7d" : "500K only"}>
         {isOperator ? wallets : <Locked min={operatorMin}>{wallets}</Locked>}
       </Panel>
 
-      <Panel title="Chain flow" note={isOperator ? "24h net" : "operator only"}>
+      <Panel title="Chain flow" note={isOperator ? "24h net" : "500K only"}>
         {isOperator ? chains : <Locked min={operatorMin}>{chains}</Locked>}
       </Panel>
     </div>
