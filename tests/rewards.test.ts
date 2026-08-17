@@ -10,11 +10,11 @@ test("fee split totals 100%", () => {
   );
 });
 
-test("bucket amounts follow the 30/30/30/10 split", () => {
+test("bucket amounts follow the 25/25/40/10 split", () => {
   const buckets = bucketAmounts(100);
-  assert.equal(buckets.callouts, 30);
-  assert.equal(buckets.fomo, 30);
-  assert.equal(buckets.social, 30);
+  assert.equal(buckets.callouts, 25);
+  assert.equal(buckets.fomo, 25);
+  assert.equal(buckets.social, 40);
   assert.equal(buckets.treasury, 10);
 });
 
@@ -41,9 +41,9 @@ test("equal callout scores split the pool equally — no tier boosts", () => {
   ]);
   const a = payouts.find((p) => p.wallet === "a")!;
   const b = payouts.find((p) => p.wallet === "b")!;
-  // Callout pool is 30; same score and same weight → 15 each, regardless of bag size.
-  assert.equal(Math.round(a.amounts.callouts * 100) / 100, 15);
-  assert.equal(Math.round(b.amounts.callouts * 100) / 100, 15);
+  // Callout pool is 25; same score and same weight → 12.5 each, regardless of bag size.
+  assert.equal(Math.round(a.amounts.callouts * 100) / 100, 12.5);
+  assert.equal(Math.round(b.amounts.callouts * 100) / 100, 12.5);
 });
 
 test("social pool only pays verified X links", () => {
@@ -53,15 +53,15 @@ test("social pool only pays verified X links", () => {
   const row = payouts.find((p) => p.wallet === "unverified")!;
   assert.equal(row.amounts.social, 0);
   // Nothing claimable, so the whole social bucket rolls forward.
-  assert.equal(unclaimed.social, 30);
+  assert.equal(unclaimed.social, 40);
 });
 
 test("an empty epoch rolls every holder bucket forward instead of losing it", () => {
   const { unclaimed, payouts } = distributeEpoch(200, []);
   assert.equal(payouts.length, 0);
-  assert.equal(unclaimed.callouts, 60);
-  assert.equal(unclaimed.fomo, 60);
-  assert.equal(unclaimed.social, 60);
+  assert.equal(unclaimed.callouts, 50);
+  assert.equal(unclaimed.fomo, 50);
+  assert.equal(unclaimed.social, 80);
 });
 
 test("distributed total never exceeds the revenue", () => {

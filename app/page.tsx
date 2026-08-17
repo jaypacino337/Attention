@@ -177,31 +177,35 @@ export default async function HomePage() {
       {/* 5 — EARN ATTENTION */}
       <section id="rewards" className="border-b rule">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-20">
-          <p className="label">Earn attention</p>
+          <p className="label">The attention flywheel</p>
           <h2 className="mt-3 text-4xl font-extrabold tracking-tight md:text-5xl">
-            Three ways <span className="serif-italic font-normal">in</span>.
+            Help it grow, <span className="serif-italic font-normal">get paid</span>.
           </h2>
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--text-soft)]">
+            Every fee goes back to the people creating attention for $ATTENTION. Rewards weigh
+            what you hold and what you contribute — and they airdrop automatically.
+          </p>
 
           <div className="mt-10 grid gap-px bg-[var(--line)] md:grid-cols-3">
             {[
               {
                 k: "01",
-                title: "Call it",
-                body: "Find attention early on pump.fun. Landed callouts earn from the callout pool.",
+                title: "Call it out",
+                body: "Call out $ATTENTION on pump.fun. The wallets making the callouts share the pool, weighted by what they hold — paid near-daily.",
                 href: LINKS.pumpfun || "/scanner",
                 cta: "See the record",
               },
               {
                 k: "02",
-                title: "Find it",
-                body: "Surface opportunities through FOMO before they're consensus.",
+                title: "Spread it",
+                body: "Push $ATTENTION through FOMO. Carry the momentum in an epoch and the pool finds you.",
                 href: "/scanner",
                 cta: "Open scanner",
               },
               {
                 k: "03",
                 title: "Create it",
-                body: "Generate and maintain attention on X. Rewards route to the wallet behind the attention.",
+                body: "Post $ATTENTION on X and keep it in the feed. The biggest pool — 40% — routes to the wallets behind the attention.",
                 href: LINKS.x,
                 cta: "Post on X",
               },

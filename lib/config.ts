@@ -40,29 +40,29 @@ export const WALLET_ENABLED =
 export const FEE_SPLIT = [
   {
     id: "callouts",
-    percent: 30,
+    percent: 25,
     name: "Pump.fun",
-    tagline: "Call attention early.",
+    tagline: "Call out $ATTENTION.",
     detail:
-      "Callout rewards for surfacing plays on pump.fun before the crowd. Rewards weight the call that landed, not the loudest account.",
+      "Rewards the people calling out $ATTENTION on pump.fun. Weighted by what you hold and the callouts you make — paid out near-daily.",
     accent: "orange",
   },
   {
     id: "fomo",
-    percent: 30,
+    percent: 25,
     name: "FOMO",
-    tagline: "Find attention early.",
+    tagline: "Spread it through FOMO.",
     detail:
-      "Callout rewards for finding attention through FOMO — paid to the wallets surfacing momentum in each epoch.",
+      "Rewards for pushing $ATTENTION through FOMO — the wallets carrying the momentum each epoch get the pool.",
     accent: "ink",
   },
   {
     id: "social",
-    percent: 30,
+    percent: 40,
     name: "X",
     tagline: "Create and maintain attention.",
     detail:
-      "Paid on measured reach from linked X accounts. Your X is bound to your wallet so payouts land where the attention came from.",
+      "The biggest pool. Post $ATTENTION on X, keep it in the feed, and rewards route to the wallet behind the attention.",
     accent: "lime",
   },
   {

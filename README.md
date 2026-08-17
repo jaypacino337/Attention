@@ -28,17 +28,15 @@ npm test           # reward-math tests
 npm run typecheck  # tsc --noEmit
 ```
 
-## Two things to set before this is live
-
-Everything renders without them, but the token side is inert until both are set:
+## Go-live env vars
 
 | Variable | Why it matters |
 | --- | --- |
-| `NEXT_PUBLIC_ATTENTION_MINT` | The pump.fun mint address. Without it no balance can be read, so nobody is eligible and the terminal stays locked. The UI says **"preview mode"** rather than showing a fake `0`. |
-| `SESSION_SECRET` | Signs session cookies and sign-in challenges. 32+ random chars (`openssl rand -base64 32`). The app refuses to start in production without it. |
+| `NEXT_PUBLIC_ATTENTION_MINT` | The pump.fun mint address — turns on live stats, holder scans and the leaderboard. |
+| `SOLANA_RPC_URL` | Dedicated RPC (Helius/Triton/QuickNode). Holder scans refuse the public endpoint. |
+| `ADMIN_KEY` | 16+ random chars — locks the `/api/epoch` payout-sheet endpoint. |
 
-Also strongly recommended: `SOLANA_RPC_URL` pointing at Helius/Triton/QuickNode. The
-default public endpoint is rate limited and will fail under real traffic.
+`SESSION_SECRET` is only needed if wallet connect is ever re-enabled.
 
 ## The economics, in one file
 
@@ -49,20 +47,15 @@ total 100% at module load — a bad edit throws instead of silently shipping.
 
 | Share | Pool | Who it pays |
 | --- | --- | --- |
-| 30% | Callout Rewards | Holders who surface plays early and keep holding them |
-| 30% | FOMO & Daily | Daily pot plus FOMO rounds, shared by holding size |
-| 30% | X Attention Rewards | Measured reach from **verified** linked X accounts |
-| 10% | Attention Wallet & Scanner | Trades, makes its own callouts; profit + rewards buy and burn |
+| 25% | Pump.fun | Wallets calling out $ATTENTION on pump.fun, weighted by holdings + callouts |
+| 25% | FOMO | Wallets spreading $ATTENTION through FOMO each epoch |
+| 40% | X | The biggest pool — posting and maintaining $ATTENTION on X |
+| 10% | Attention Fund | Trades and makes callouts; profits + rewards buy back and burn |
 
-**Tiers** — `250,000` ATTENTION (Watcher) qualifies for rewards and opens the
-terminal; `500,000` (Operator) earns at 2x weight and unlocks the top-wallets and
-chain-flow panels.
+**Eligibility** — one floor: `250,000` $ATTENTION. Hold it and you're in every
+pool; rewards airdrop automatically, nothing to claim.
 
-> You said "500,000 or 250k minimum". I read that as two tiers with 250k as the
-> floor. If it was meant to be a single 500k threshold, change `MIN_ELIGIBLE` in
-> `lib/config.ts` and everything follows.
-
-## How the gating actually works
+## How the (dormant) wallet gating works
 
 1. Browser asks `/api/auth/challenge` for a challenge bound to the wallet.
 2. Wallet signs a plain-text message that states it is **a signature only — no
