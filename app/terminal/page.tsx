@@ -7,6 +7,7 @@ import { loadAccount } from "@/lib/account";
 import { FULL_TIER, TERMINAL_GATE, TOKEN, WALLET_ENABLED } from "@/lib/config";
 import { getTerminalFeed } from "@/lib/terminal";
 import { loadScannerCalls } from "@/lib/scanner";
+import { getLeaderboard } from "@/lib/leaderboard";
 
 export const metadata: Metadata = { title: "Attention Terminal" };
 /** Gating depends on a live balance read, so this page can never be static. */
@@ -98,7 +99,11 @@ export default async function TerminalPage() {
     );
   }
 
-  const [feed, scannerCalls] = await Promise.all([getTerminalFeed(), loadScannerCalls()]);
+  const [feed, scannerCalls, leaderboard] = await Promise.all([
+    getTerminalFeed(),
+    loadScannerCalls(),
+    getLeaderboard(),
+  ]);
   const isOperator = account.balance >= FULL_TIER;
 
   return (
@@ -125,6 +130,7 @@ export default async function TerminalPage() {
         <TerminalPanels
           feed={feed}
           scannerCalls={scannerCalls}
+          leaderboard={leaderboard}
           isOperator={isOperator}
           operatorMin={FULL_TIER}
         />

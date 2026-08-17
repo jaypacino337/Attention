@@ -1,5 +1,6 @@
 import type { TerminalFeed } from "@/lib/terminal";
 import type { ScannerCallView } from "@/lib/scanner";
+import type { Leaderboard } from "@/lib/leaderboard";
 import { ScannerTable } from "./scanner-table";
 
 const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
@@ -42,14 +43,40 @@ function Locked({ min, children }: { min: number; children: React.ReactNode }) {
 export function TerminalPanels({
   feed,
   scannerCalls,
+  leaderboard,
   isOperator,
   operatorMin,
 }: {
   feed: TerminalFeed;
   scannerCalls: ScannerCallView[];
+  leaderboard: Leaderboard | null;
   isOperator: boolean;
   operatorMin: number;
 }) {
+  // Real on-chain holders when the scan is live; curated/sample feed otherwise.
+  const holdersTable = leaderboard ? (
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="label">
+          <th className="pb-2 text-left font-normal">Holder</th>
+          <th className="pb-2 text-right font-normal">Balance</th>
+          <th className="pb-2 text-right font-normal">Tier</th>
+        </tr>
+      </thead>
+      <tbody className="font-mono">
+        {leaderboard.top.slice(0, 10).map((entry) => (
+          <tr key={entry.owner} className="border-t rule">
+            <td className="py-2" title={entry.owner}>
+              {entry.display}
+            </td>
+            <td className="py-2 text-right">{entry.balance.toLocaleString("en-US")}</td>
+            <td className="py-2 text-right text-[var(--text-faint)]">{entry.tier}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : null;
+
   const wallets = (
     <table className="w-full text-sm">
       <thead>
@@ -154,8 +181,21 @@ export function TerminalPanels({
         </ul>
       </Panel>
 
-      <Panel title="Top wallets" note={isOperator ? "7d" : "500K only"}>
-        {isOperator ? wallets : <Locked min={operatorMin}>{wallets}</Locked>}
+      <Panel
+        title={leaderboard ? "Top holders" : "Top wallets"}
+        note={
+          isOperator
+            ? leaderboard
+              ? `on-chain · ${leaderboard.eligibleHolders} eligible`
+              : "7d"
+            : "500K only"
+        }
+      >
+        {isOperator ? (
+          (holdersTable ?? wallets)
+        ) : (
+          <Locked min={operatorMin}>{holdersTable ?? wallets}</Locked>
+        )}
       </Panel>
 
       <Panel title="Chain flow" note={isOperator ? "24h net" : "500K only"}>
