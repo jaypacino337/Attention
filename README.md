@@ -139,8 +139,14 @@ can** — so automation runs in production, not here.
   data. This is the manual path until live feeds are wired.
 - **Ad placements** — `ADS_JSON` env var, as before.
 
-**Still future work:** X reach scoring (needs X API), automated callout
-detection, and on-chain payout execution.
+**Autopilot (runs on the operator's machine, never the server):**
+`scripts/autopilot.mjs` claims pump.fun creator fees (signed locally via
+PumpPortal's local-transaction API), pulls the payout sheet from the site, and
+airdrops the holder pool — dry run by default, `--send` for real, cron-able.
+Keys live only in local keypair files. See the header comment for setup.
+
+**Still future work:** X reach scoring (needs X API) and automated callout
+scoring.
 
 ## Rate limiting
 
