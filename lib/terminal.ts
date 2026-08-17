@@ -37,7 +37,8 @@ export type MetaRow = {
 export type ChainFlow = { chain: string; share: number; net24h: number };
 
 export type TerminalFeed = {
-  source: "sample" | "live";
+  /** sample = placeholder; manual = curated via data/terminal.json; live = API-fed. */
+  source: "sample" | "manual" | "live";
   updatedAt: string;
   topWallets: TopWallet[];
   topCallers: TopCaller[];
@@ -72,6 +73,36 @@ const SAMPLE: Omit<TerminalFeed, "updatedAt" | "source"> = {
   ],
 };
 
+/**
+ * Manual override: commit real numbers to data/terminal.json (same shape as
+ * SAMPLE, all four keys optional — missing ones fall back to sample rows).
+ * Editing that file in the GitHub web UI triggers a redeploy, so curating the
+ * terminal by hand needs no tooling at all. Delete the file to return to
+ * sample data.
+ */
+async function readManualFeed(): Promise<Partial<typeof SAMPLE> | null> {
+  try {
+    const fs = await import("node:fs/promises");
+    const path = await import("node:path");
+    const raw = await fs.readFile(path.join(process.cwd(), "data", "terminal.json"), "utf8");
+    const parsed = JSON.parse(raw) as Partial<typeof SAMPLE>;
+    return typeof parsed === "object" && parsed !== null ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getTerminalFeed(): Promise<TerminalFeed> {
+  const manual = await readManualFeed();
+  if (manual) {
+    return {
+      source: "manual",
+      updatedAt: new Date().toISOString(),
+      topWallets: manual.topWallets ?? SAMPLE.topWallets,
+      topCallers: manual.topCallers ?? SAMPLE.topCallers,
+      meta: manual.meta ?? SAMPLE.meta,
+      chains: manual.chains ?? SAMPLE.chains,
+    };
+  }
   return { source: "sample", updatedAt: new Date().toISOString(), ...SAMPLE };
 }

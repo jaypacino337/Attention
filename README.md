@@ -109,6 +109,38 @@ blocks outbound egress to `api.mainnet-beta.solana.com`, so the balance path is
 exercised only through its unconfigured branch. Set the mint and an RPC url locally
 and connect a real wallet to confirm end to end.
 
+## Automated vs manual
+
+The build sandbox can't reach pump.fun or Solana RPCs, but **the deployed site
+can** — so automation runs in production, not here.
+
+**Automated once env vars are set (no hands needed):**
+
+- **Live token stats** — the homepage strip pulls market cap / price / replies
+  from pump.fun every 60s (`lib/pumpfun.ts`). Renders nothing on API failure
+  rather than fake numbers. Needs only the mint.
+- **Holder scan** — `lib/holders.ts` walks every token account for the mint and
+  sums per owner, so "every holder above 250k" is one call. Needs a dedicated
+  RPC (`SOLANA_RPC_URL`); it refuses to run against the public endpoint, which
+  would just error at this size.
+- **Daily/FOMO payout sheet** — `GET /api/epoch?revenue=<SOL>` with header
+  `x-admin-key: $ADMIN_KEY` scans eligible holders live and returns each
+  wallet's daily/FOMO share for that revenue, ready to pay. Callout and social
+  pools come back as unclaimed until you attach scores — those need judgement
+  and X metrics. The endpoint never touches private keys; paying is a separate,
+  deliberate act.
+
+**Manual, by design (edit a file on GitHub → auto-redeploy):**
+
+- **Terminal data / callouts** — copy `data/terminal.example.json` to
+  `data/terminal.json`, put real rows in, commit. The terminal shows your data
+  with a "curated by the team" badge. Delete the file to fall back to sample
+  data. This is the manual path until live feeds are wired.
+- **Ad placements** — `ADS_JSON` env var, as before.
+
+**Still future work:** X reach scoring (needs X API), automated callout
+detection, and on-chain payout execution.
+
 ## Rate limiting
 
 There is none. `/api/auth/challenge` and `/api/me` are cheap but hit an RPC. Add

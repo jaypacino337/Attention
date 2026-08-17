@@ -113,6 +113,10 @@ export default async function TerminalPage() {
           <span className="border border-dashed rule px-2 py-1 text-xs font-semibold text-[var(--text-soft)]">
             sample data — live feeds not connected
           </span>
+        ) : feed.source === "manual" ? (
+          <span className="border border-dashed rule px-2 py-1 text-xs font-semibold text-[var(--text-soft)]">
+            curated by the team
+          </span>
         ) : null}
       </div>
 

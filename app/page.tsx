@@ -3,6 +3,7 @@ import { MarkHero } from "@/components/mark";
 import { ConnectButton } from "@/components/connect-button";
 import { EligibilityPanel } from "@/components/eligibility-panel";
 import { AdSlot } from "@/components/ad-slot";
+import { TokenStats } from "@/components/token-stats";
 import { FEE_SPLIT, FULL_TIER, LINKS, MIN_ELIGIBLE, TIERS, TOKEN } from "@/lib/config";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
@@ -16,6 +17,8 @@ const accentClass: Record<string, string> = {
 export default function HomePage() {
   return (
     <>
+      <TokenStats />
+
       {/* Hero */}
       <section className="blueprint border-b rule">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-16 md:grid-cols-2 md:py-24">
