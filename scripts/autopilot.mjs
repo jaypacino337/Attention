@@ -59,8 +59,9 @@ const RPC_URL = process.env.SOLANA_RPC_URL;
 const MIN_CLAIM_SOL = Number(flag("min-claim") ?? 0.05); // skip epochs not worth the fees
 const MIN_PAYOUT_SOL = 0.001; // dust guard per recipient
 
-if (!payPath) {
-  console.error("usage: node scripts/autopilot.mjs [--claim dev.json] --pay payer.json [--revenue N] [--send]");
+// --pay is optional: with only --claim, the dev wallet claims AND pays.
+if (!payPath && !claimPath) {
+  console.error("usage: node scripts/autopilot.mjs --claim dev.txt [--pay payer.txt] [--revenue N] [--send]");
   process.exit(1);
 }
 if (!RPC_URL) {
@@ -180,7 +181,8 @@ const totalPay = payouts.reduce((sum, p) => sum + p.sol, 0);
 log(`payable now (holder pool): ${payouts.length} wallets, ${totalPay.toFixed(4)} SOL`);
 
 // ---------- 3. airdrop ----------
-const payer = loadKeypair(payPath);
+const payer = loadKeypair(payPath ?? claimPath);
+if (!payPath) log("paying directly from the claim (dev) wallet");
 log(`payout wallet: ${payer.publicKey.toBase58()}`);
 const payerBalance = sol(await connection.getBalance(payer.publicKey));
 log(`payout wallet balance: ${payerBalance.toFixed(4)} SOL`);
@@ -197,7 +199,7 @@ if (!send) {
 if (payerBalance < totalPay * 1.01) {
   console.error(
     `Payout wallet holds ${payerBalance.toFixed(4)} SOL but the sheet needs ~${totalPay.toFixed(4)}. ` +
-      `Top it up from the claim wallet first (a normal transfer in your wallet app). No transfers made.`,
+      `Top it up first. No transfers made.`,
   );
   process.exit(1);
 }
