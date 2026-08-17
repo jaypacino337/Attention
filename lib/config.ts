@@ -23,6 +23,14 @@ export const TOKEN = {
 export const isMintConfigured = () => TOKEN.mint.trim().length > 0;
 
 /**
+ * Wallet connect / gating UI is shown only once the mint exists. Until then
+ * the site is a pure landing page — no connect buttons, terminal shown as
+ * "opens at launch". Setting NEXT_PUBLIC_ATTENTION_MINT flips all of it on
+ * (it is build-inlined, so a redeploy is required).
+ */
+export const WALLET_ENABLED = isMintConfigured();
+
+/**
  * Where trading fees go. Must total 100.
  * Validated at module load so a bad edit fails loudly instead of silently
  * shipping a split that doesn't add up.

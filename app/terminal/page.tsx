@@ -4,7 +4,7 @@ import { AdSlot } from "@/components/ad-slot";
 import { ConnectButton, ConnectError } from "@/components/connect-button";
 import { TerminalPanels } from "@/components/terminal-panels";
 import { loadAccount } from "@/lib/account";
-import { FULL_TIER, TERMINAL_GATE, TOKEN } from "@/lib/config";
+import { FULL_TIER, TERMINAL_GATE, TOKEN, WALLET_ENABLED } from "@/lib/config";
 import { getTerminalFeed } from "@/lib/terminal";
 
 export const metadata: Metadata = { title: "Attention Terminal" };
@@ -26,6 +26,28 @@ function Shell({ children }: { children: React.ReactNode }) {
 }
 
 export default async function TerminalPage() {
+  // Pre-launch: no mint, no wallet UI — the terminal is a preview, not a gate.
+  if (!WALLET_ENABLED) {
+    return (
+      <Shell>
+        <div className="mt-8 max-w-lg border rule bg-[var(--ground-raised)] p-6 bracket">
+          <p className="text-lg font-bold">Opens at launch</p>
+          <p className="mt-2 text-sm text-[var(--text-soft)]">
+            The terminal goes live with the token. Holders of {fmt(TERMINAL_GATE)} {TOKEN.symbol}{" "}
+            get in; {fmt(FULL_TIER)} unlocks the operator panels — top wallets, meta rotation and
+            chain flow.
+          </p>
+          <Link
+            href="/#rewards"
+            className="mt-5 inline-block border px-3 py-2 text-sm font-semibold rule hover:border-[var(--color-orange)]"
+          >
+            See the tiers
+          </Link>
+        </div>
+      </Shell>
+    );
+  }
+
   const account = await loadAccount();
 
   if (!account) {

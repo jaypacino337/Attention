@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { WALLET_ENABLED } from "@/lib/config";
 
 /**
  * Wallet connection + sign-in.
@@ -96,6 +97,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [hasProvider, setHasProvider] = useState(true);
 
   const refresh = useCallback(async () => {
+    if (!WALLET_ENABLED) return;
     const response = await fetch("/api/me", { cache: "no-store" });
     const data = await response.json();
     setAccount(data.authenticated ? (data.account as AccountSnapshot) : null);

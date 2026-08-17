@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { WALLET_ENABLED } from "@/lib/config";
 import { useWallet } from "./wallet-context";
 import { ConnectButton, ConnectError } from "./connect-button";
 
@@ -20,6 +21,20 @@ export function EligibilityPanel({
   fullAt: number;
 }) {
   const { account, status } = useWallet();
+
+  if (!WALLET_ENABLED) {
+    return (
+      <div className="bracket border rule bg-[var(--ground-raised)] p-6">
+        <p className="label">Eligibility</p>
+        <p className="mt-3 text-lg font-bold">Gating opens at launch</p>
+        <p className="mt-2 text-sm text-[var(--text-soft)]">
+          When ATTENTION is live, hold {fmt(eligibleAt)} to qualify for every reward pool and open
+          the terminal — {fmt(fullAt)} earns at double weight. Balances will be checked on-chain,
+          with a free signature, never a transaction.
+        </p>
+      </div>
+    );
+  }
 
   if (!account) {
     return (

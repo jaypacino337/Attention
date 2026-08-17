@@ -1,5 +1,6 @@
 "use client";
 
+import { WALLET_ENABLED } from "@/lib/config";
 import { useWallet } from "./wallet-context";
 
 function short(address: string) {
@@ -8,6 +9,9 @@ function short(address: string) {
 
 export function ConnectButton({ className = "" }: { className?: string }) {
   const { account, status, connect, disconnect, hasProvider } = useWallet();
+
+  // Pre-launch (no mint configured) the site carries no wallet UI at all.
+  if (!WALLET_ENABLED) return null;
 
   if (account) {
     return (
@@ -44,7 +48,7 @@ export function ConnectButton({ className = "" }: { className?: string }) {
 /** Inline error slot — rendered where the action was taken, not as a toast. */
 export function ConnectError() {
   const { error } = useWallet();
-  if (!error) return null;
+  if (!WALLET_ENABLED || !error) return null;
   return (
     <p className="mt-3 border-l-2 border-[var(--color-orange)] pl-3 text-sm text-[var(--text-soft)]">
       {error}
