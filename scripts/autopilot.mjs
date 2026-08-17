@@ -22,6 +22,10 @@
  * No claim wallet? Claim manually on pump.fun, then skip straight to payout:
  *   node scripts/autopilot.mjs --pay ~/payer.json --revenue 12.5 --send
  *
+ * Airdrop TOKENS from your supply instead of SOL (split by holdings):
+ *   node scripts/autopilot.mjs --claim dev.txt --token-pool 5000000 --send
+ *   (mint comes from ATTENTION_MINT env or --mint <address>)
+ *
  * Automate with cron (runs daily at 18:00, your machine must be on):
  *   0 18 * * *  cd /path/to/Attention && node scripts/autopilot.mjs --claim ~/dev.json --pay ~/payer.json --send >> autopilot.log 2>&1
  *
@@ -39,6 +43,11 @@ import {
   Transaction,
   VersionedTransaction,
 } from "@solana/web3.js";
+import {
+  createAssociatedTokenAccountIdempotentInstruction,
+  createTransferInstruction,
+  getAssociatedTokenAddressSync,
+} from "@solana/spl-token";
 
 // ---------- args ----------
 const args = process.argv.slice(2);
@@ -51,6 +60,10 @@ const has = (name) => args.includes(`--${name}`);
 const claimPath = flag("claim");
 const payPath = flag("pay");
 const revenueOverride = flag("revenue") ? Number(flag("revenue")) : undefined;
+/** Airdrop this many $ATTENTION tokens instead of SOL, split by holdings. */
+const tokenPool = flag("token-pool") ? Number(flag("token-pool")) : undefined;
+const mintAddress = flag("mint") ?? process.env.ATTENTION_MINT ?? process.env.NEXT_PUBLIC_ATTENTION_MINT;
+const TOKEN_DECIMALS = Number(process.env.ATTENTION_DECIMALS ?? 6);
 const send = has("send");
 
 const SITE_URL = process.env.SITE_URL ?? "https://attnmarkets.fun";
@@ -72,8 +85,12 @@ if (!ADMIN_KEY) {
   console.error("Set ADMIN_KEY (same value as on your host).");
   process.exit(1);
 }
-if (!claimPath && revenueOverride === undefined) {
-  console.error("Pass --claim <dev-keypair.json> to auto-claim, or --revenue <SOL> if you claimed manually.");
+if (!claimPath && revenueOverride === undefined && tokenPool === undefined) {
+  console.error("Pass --claim <dev.txt> to auto-claim, --revenue <SOL> after a manual claim, or --token-pool <tokens> for a token airdrop.");
+  process.exit(1);
+}
+if (tokenPool !== undefined && (!mintAddress || !Number.isFinite(tokenPool) || tokenPool <= 0)) {
+  console.error("Token airdrop needs --token-pool <amount> and the mint (--mint or ATTENTION_MINT env).");
   process.exit(1);
 }
 
@@ -153,7 +170,10 @@ if (claimPath) {
   }
 }
 
-if (!send && revenue === 0) {
+if (revenue === 0 && tokenPool !== undefined) {
+  // Token mode only needs each holder's PROPORTION; revenue=1 yields shares.
+  revenue = 1;
+} else if (!send && revenue === 0) {
   // Dry run with no measured claim: use the override or a placeholder so the
   // sheet preview still renders.
   revenue = revenueOverride ?? 1;
@@ -174,50 +194,102 @@ log(`sheet: ${sheet.eligibleHolders} eligible holders, revenue ${revenue} SOL`);
 
 // Only the holder-proportional pool is auto-payable; callout/social pools
 // need scores attached and are reported unclaimed by the sheet.
-const payouts = (sheet.payouts ?? [])
-  .map((p) => ({ wallet: p.wallet, sol: p.amounts?.fomo ?? 0 }))
-  .filter((p) => p.sol >= MIN_PAYOUT_SOL);
-const totalPay = payouts.reduce((sum, p) => sum + p.sol, 0);
-log(`payable now (holder pool): ${payouts.length} wallets, ${totalPay.toFixed(4)} SOL`);
+const rawShares = (sheet.payouts ?? []).map((p) => ({
+  wallet: p.wallet,
+  share: p.amounts?.fomo ?? 0,
+}));
+
+let payouts;
+let unit;
+if (tokenPool !== undefined) {
+  // Split the token pool by each holder's proportional share of holdings.
+  const totalShare = rawShares.reduce((sum, p) => sum + p.share, 0);
+  payouts = rawShares
+    .map((p) => ({ wallet: p.wallet, amount: totalShare > 0 ? (tokenPool * p.share) / totalShare : 0 }))
+    .filter((p) => p.amount >= 1); // dust guard: skip sub-1-token sends
+  unit = "ATTENTION";
+} else {
+  payouts = rawShares
+    .map((p) => ({ wallet: p.wallet, amount: p.share }))
+    .filter((p) => p.amount >= MIN_PAYOUT_SOL);
+  unit = "SOL";
+}
+const totalPay = payouts.reduce((sum, p) => sum + p.amount, 0);
+log(`payable now (holder pool): ${payouts.length} wallets, ${totalPay.toFixed(unit === "SOL" ? 4 : 0)} ${unit}`);
 
 // ---------- 3. airdrop ----------
 const payer = loadKeypair(payPath ?? claimPath);
 if (!payPath) log("paying directly from the claim (dev) wallet");
 log(`payout wallet: ${payer.publicKey.toBase58()}`);
-const payerBalance = sol(await connection.getBalance(payer.publicKey));
-log(`payout wallet balance: ${payerBalance.toFixed(4)} SOL`);
+
+const mintKey = tokenPool !== undefined ? new PublicKey(mintAddress) : null;
+const fromAta = mintKey ? getAssociatedTokenAddressSync(mintKey, payer.publicKey) : null;
+
+if (tokenPool !== undefined) {
+  try {
+    const bal = await connection.getTokenAccountBalance(fromAta);
+    const held = bal.value.uiAmount ?? 0;
+    log(`payout wallet holds ${held.toLocaleString("en-US")} ATTENTION`);
+    if (send && held < totalPay) {
+      console.error(`Not enough tokens: need ${totalPay.toFixed(0)}, have ${held.toFixed(0)}. No transfers made.`);
+      process.exit(1);
+    }
+  } catch {
+    console.error("Payout wallet has no ATTENTION token account. Send it tokens first. No transfers made.");
+    process.exit(1);
+  }
+} else {
+  const payerBalance = sol(await connection.getBalance(payer.publicKey));
+  log(`payout wallet balance: ${payerBalance.toFixed(4)} SOL`);
+  if (send && payerBalance < totalPay * 1.01) {
+    console.error(
+      `Payout wallet holds ${payerBalance.toFixed(4)} SOL but the sheet needs ~${totalPay.toFixed(4)}. ` +
+        `Top it up first. No transfers made.`,
+    );
+    process.exit(1);
+  }
+}
 
 if (!send) {
   for (const p of payouts.slice(0, 10)) {
-    log(`would send ${p.sol.toFixed(6)} SOL -> ${p.wallet}`);
+    log(`would send ${p.amount.toFixed(unit === "SOL" ? 6 : 0)} ${unit} -> ${p.wallet}`);
   }
   if (payouts.length > 10) log(`…and ${payouts.length - 10} more`);
-  log("dry run complete — pass --send to claim and pay for real");
+  log("dry run complete — pass --send to do it for real");
   process.exit(0);
-}
-
-if (payerBalance < totalPay * 1.01) {
-  console.error(
-    `Payout wallet holds ${payerBalance.toFixed(4)} SOL but the sheet needs ~${totalPay.toFixed(4)}. ` +
-      `Top it up first. No transfers made.`,
-  );
-  process.exit(1);
 }
 
 let sent = 0;
 for (const p of payouts) {
   try {
-    const tx = new Transaction().add(
-      SystemProgram.transfer({
-        fromPubkey: payer.publicKey,
-        toPubkey: new PublicKey(p.wallet),
-        lamports: Math.floor(p.sol * LAMPORTS_PER_SOL),
-      }),
-    );
+    const dest = new PublicKey(p.wallet);
+    const tx = new Transaction();
+    if (tokenPool !== undefined) {
+      // Create the recipient's token account if they don't have one (idempotent),
+      // then transfer. Rent (~0.002 SOL per new account) is paid by the payer.
+      const toAta = getAssociatedTokenAddressSync(mintKey, dest, true);
+      tx.add(
+        createAssociatedTokenAccountIdempotentInstruction(payer.publicKey, toAta, dest, mintKey),
+        createTransferInstruction(
+          fromAta,
+          toAta,
+          payer.publicKey,
+          BigInt(Math.round(p.amount * 10 ** TOKEN_DECIMALS)),
+        ),
+      );
+    } else {
+      tx.add(
+        SystemProgram.transfer({
+          fromPubkey: payer.publicKey,
+          toPubkey: dest,
+          lamports: Math.floor(p.amount * LAMPORTS_PER_SOL),
+        }),
+      );
+    }
     const signature = await connection.sendTransaction(tx, [payer]);
     await connection.confirmTransaction(signature, "confirmed");
     sent += 1;
-    log(`sent ${p.sol.toFixed(6)} SOL -> ${p.wallet}  ${signature}`);
+    log(`sent ${p.amount.toFixed(unit === "SOL" ? 6 : 0)} ${unit} -> ${p.wallet}  ${signature}`);
   } catch (error) {
     console.error(`FAILED -> ${p.wallet}: ${error.message}`);
   }
