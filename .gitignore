@@ -11,3 +11,5 @@ next-env.d.ts
 .test-build/
 holders-state.json
 callouts.json
+dev.txt
+payout-config.json
