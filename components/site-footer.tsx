@@ -44,6 +44,12 @@ export function SiteFooter() {
       </div>
 
       <div className="mx-auto max-w-6xl px-5 pb-10">
+        {TOKEN.mint ? (
+          <p className="mb-4 break-all font-mono text-xs text-[var(--text-soft)]">
+            <span className="label mr-2">CA</span>
+            {TOKEN.mint}
+          </p>
+        ) : null}
         <p className="max-w-3xl text-xs leading-relaxed text-[var(--text-faint)]">
           {TOKEN.symbol} is a community token. Nothing here is financial advice, and no reward,
           payout or return is guaranteed — reward pools only exist to the extent fees are

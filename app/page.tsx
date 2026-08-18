@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MarkHero } from "@/components/mark";
 import { ConnectButton } from "@/components/connect-button";
+import { ContractAddress } from "@/components/contract-address";
 import { EligibilityPanel } from "@/components/eligibility-panel";
 import { TokenStats } from "@/components/token-stats";
 import { LiveAttentionModule } from "@/components/live-attention";
@@ -70,6 +71,8 @@ export default async function HomePage() {
               </Link>
               <ConnectButton />
             </div>
+
+            <ContractAddress className="mt-4" />
           </div>
 
           <div className="mx-auto w-full max-w-xs text-[var(--text)] md:max-w-md">

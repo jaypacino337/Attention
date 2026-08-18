@@ -6,16 +6,11 @@
  * the UI, the API routes and the reward math stay in agreement.
  */
 
-/** Token identity. The mint is required for live balance checks. */
+/** Token identity. The launched pump.fun mint; env can override if it ever migrates. */
 export const TOKEN = {
   symbol: "ATTENTION",
   name: "Attention Markets",
-  /**
-   * Set NEXT_PUBLIC_ATTENTION_MINT to the pump.fun mint address.
-   * Until it is set the site runs in preview mode: everything renders, but
-   * balance checks return `configured: false` instead of inventing a number.
-   */
-  mint: process.env.NEXT_PUBLIC_ATTENTION_MINT ?? "",
+  mint: process.env.NEXT_PUBLIC_ATTENTION_MINT ?? "CSL5S49M4RBJZuvm289x4Mt7AtSsprWmZe7ne3Xppump",
   /** pump.fun mints are 6 decimals. Overridable if the token migrates. */
   decimals: Number(process.env.NEXT_PUBLIC_ATTENTION_DECIMALS ?? 6),
 } as const;
@@ -137,7 +132,9 @@ export function nextTier(balance: number): { tier: Tier; needed: number } | null
 }
 
 export const LINKS = {
-  x: process.env.NEXT_PUBLIC_X_URL ?? "https://x.com",
-  pumpfun: process.env.NEXT_PUBLIC_PUMPFUN_URL ?? "",
+  x: process.env.NEXT_PUBLIC_X_URL ?? "https://x.com/Attn_Markets_",
+  pumpfun:
+    process.env.NEXT_PUBLIC_PUMPFUN_URL ??
+    (TOKEN.mint ? `https://pump.fun/coin/${TOKEN.mint}` : ""),
   docs: "/#how",
 } as const;

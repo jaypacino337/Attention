@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Mark } from "./mark";
 import { ConnectButton } from "./connect-button";
+import { LINKS as EXTERNAL } from "@/lib/config";
 
 const LINKS = [
   { href: "/", label: "Attention" },
@@ -46,7 +47,21 @@ export function SiteNav() {
           })}
         </div>
 
-        <div className="shrink-0">
+        <div className="flex shrink-0 items-center gap-3">
+          <a
+            href={EXTERNAL.x}
+            className="font-mono text-[11px] font-bold uppercase tracking-widest text-[var(--text-soft)] hover:text-[var(--color-orange)]"
+          >
+            𝕏
+          </a>
+          {EXTERNAL.pumpfun ? (
+            <a
+              href={EXTERNAL.pumpfun}
+              className="bg-[var(--color-orange)] px-3 py-1.5 text-xs font-bold text-white"
+            >
+              Buy
+            </a>
+          ) : null}
           <ConnectButton />
         </div>
       </nav>

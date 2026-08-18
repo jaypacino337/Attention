@@ -48,16 +48,20 @@ export async function getAttentionBalance(owner: string): Promise<BalanceResult>
     return { configured: false, balance: 0, reason: "Invalid wallet or mint address" };
   }
 
-  const accounts = await rpc().getParsedTokenAccountsByOwner(ownerKey, { mint: mintKey });
-
-  const balance = accounts.value.reduce((sum, { account }) => {
-    const parsed = account.data.parsed as {
-      info?: { tokenAmount?: { uiAmount: number | null } };
-    };
-    return sum + (parsed.info?.tokenAmount?.uiAmount ?? 0);
-  }, 0);
-
-  return { configured: true, balance };
+  try {
+    const accounts = await rpc().getParsedTokenAccountsByOwner(ownerKey, { mint: mintKey });
+    const balance = accounts.value.reduce((sum, { account }) => {
+      const parsed = account.data.parsed as {
+        info?: { tokenAmount?: { uiAmount: number | null } };
+      };
+      return sum + (parsed.info?.tokenAmount?.uiAmount ?? 0);
+    }, 0);
+    return { configured: true, balance };
+  } catch {
+    // RPC down or rate limited: report the balance as unknown rather than
+    // crashing the request or inventing a zero.
+    return { configured: false, balance: 0, reason: "Balance read failed — RPC unreachable" };
+  }
 }
 
 /** Validate a base58 address without throwing. */
