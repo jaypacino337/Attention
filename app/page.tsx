@@ -236,6 +236,27 @@ export default async function HomePage() {
               </Link>
             ))}
           </div>
+
+          {/* The rules — short, blunt, enforced by the payout engine. */}
+          <div className="mt-10 border-l-2 border-[var(--color-orange)] pl-5">
+            <p className="label">The rules</p>
+            <ul className="mt-3 max-w-2xl space-y-2.5 text-sm leading-relaxed text-[var(--text-soft)]">
+              <li>
+                <strong className="text-[var(--text)]">Hold your bag.</strong> Callout rewards on
+                pump.fun and FOMO require keeping at least 50% of your position. Selling is
+                measured — dump past the line and you&apos;re ineligible until you rebuild.
+              </li>
+              <li>
+                <strong className="text-[var(--text)]">Real attention only.</strong> On X, your
+                reach and your followers weigh your reward. Bots and farmed engagement are
+                filtered out and earn nothing.
+              </li>
+              <li>
+                <strong className="text-[var(--text)]">Holding compounds.</strong> Every epoch you
+                hold through builds your reward weight. Consistency beats size.
+              </li>
+            </ul>
+          </div>
         </div>
       </section>
 
