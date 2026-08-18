@@ -213,4 +213,8 @@ body {
   .scan-rotate-slow {
     animation: none;
   }
+  /* SMIL travelers can't be paused from CSS — hide them; static nodes remain. */
+  .motion-only {
+    display: none;
+  }
 }
