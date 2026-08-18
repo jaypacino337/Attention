@@ -191,12 +191,26 @@ body {
   background: var(--color-orange);
 }
 
+/* Rotating sweep for the scan globe — center-origin, works at any size. */
+.scan-rotate {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: radar-sweep 12s linear infinite;
+}
+.scan-rotate-slow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: radar-sweep 40s linear infinite reverse;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .orbit-node,
   .orbit-ring,
   .node-blink,
   .node-blink-slow,
-  .radar::after {
+  .radar::after,
+  .scan-rotate,
+  .scan-rotate-slow {
     animation: none;
   }
 }
