@@ -5,12 +5,12 @@ import { SiteFooter } from "@/components/site-footer";
 import { WalletProvider } from "@/components/wallet-context";
 
 export const metadata: Metadata = {
-  title: "Attention Markets — Attention is currency",
+  title: "PRVC — Privacy on Solana",
   description:
-    "The attention layer of Solana. Find attention. Create attention. Get rewarded for it.",
+    "PRVC is a privacy-first community token on Solana. Privacy is a right, not a feature.",
   openGraph: {
-    title: "Attention Markets",
-    description: "Attention is currency. The attention layer of Solana.",
+    title: "PRVC",
+    description: "Privacy on Solana. Privacy is a right, not a feature.",
     type: "website",
   },
 };

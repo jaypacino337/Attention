@@ -6,11 +6,16 @@
  * the UI, the API routes and the reward math stay in agreement.
  */
 
-/** Token identity. The launched pump.fun mint; env can override if it ever migrates. */
+/** Token identity. Set NEXT_PUBLIC_ATTENTION_MINT to the PRVC mint when it exists. */
 export const TOKEN = {
-  symbol: "ATTENTION",
-  name: "Attention Markets",
-  mint: process.env.NEXT_PUBLIC_ATTENTION_MINT ?? "CSL5S49M4RBJZuvm289x4Mt7AtSsprWmZe7ne3Xppump",
+  symbol: "PRVC",
+  name: "PRVC",
+  /**
+   * The PRVC mint. Deliberately blank by default — this brand must NOT point at
+   * any other token. Set NEXT_PUBLIC_ATTENTION_MINT to the real PRVC mint to
+   * turn on live stats and holder features.
+   */
+  mint: process.env.NEXT_PUBLIC_ATTENTION_MINT ?? "",
   /** pump.fun mints are 6 decimals. Overridable if the token migrates. */
   decimals: Number(process.env.NEXT_PUBLIC_ATTENTION_DECIMALS ?? 6),
 } as const;
@@ -132,9 +137,9 @@ export function nextTier(balance: number): { tier: Tier; needed: number } | null
 }
 
 export const LINKS = {
-  x: process.env.NEXT_PUBLIC_X_URL ?? "https://x.com/Attn_Markets_",
+  x: process.env.NEXT_PUBLIC_X_URL ?? "https://x.com",
   pumpfun:
     process.env.NEXT_PUBLIC_PUMPFUN_URL ??
     (TOKEN.mint ? `https://pump.fun/coin/${TOKEN.mint}` : ""),
-  docs: "/#how",
+  docs: "/#about",
 } as const;

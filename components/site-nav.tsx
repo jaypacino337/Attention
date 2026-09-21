@@ -7,11 +7,9 @@ import { ConnectButton } from "./connect-button";
 import { LINKS as EXTERNAL } from "@/lib/config";
 
 const LINKS = [
-  { href: "/", label: "Attention" },
-  { href: "/scanner", label: "Scanner" },
-  { href: "/terminal", label: "Terminal" },
+  { href: "/", label: "PRVC" },
+  { href: "/#about", label: "About" },
   { href: "/#rewards", label: "Rewards" },
-  { href: "/fund", label: "Fund" },
 ];
 
 export function SiteNav() {
@@ -23,7 +21,7 @@ export function SiteNav() {
         <Link href="/" className="flex shrink-0 items-center gap-2.5 font-extrabold tracking-tight">
           <Mark className="h-7 w-7" />
           <span className="hidden text-[15px] sm:inline">
-            Attention <span className="serif-italic font-normal">Markets</span>
+            PRVC <span className="serif-italic font-normal">privacy</span>
           </span>
         </Link>
 

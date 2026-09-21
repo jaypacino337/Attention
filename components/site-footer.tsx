@@ -10,27 +10,18 @@ export function SiteFooter() {
           <Mark className="h-8 w-8" />
           <div>
             <p className="font-extrabold tracking-tight">
-              Attention <span className="serif-italic font-normal">Markets</span>
+              PRVC <span className="serif-italic font-normal">privacy</span>
             </p>
-            <p className="label mt-0.5">Attention is currency</p>
+            <p className="label mt-0.5">Privacy is a right</p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-6 text-sm text-[var(--text-soft)]">
-          <Link href="/scanner" className="hover:text-[var(--color-orange)]">
-            Scanner
+          <Link href="/#about" className="hover:text-[var(--color-orange)]">
+            About
           </Link>
-          <Link href="/terminal" className="hover:text-[var(--color-orange)]">
-            Terminal
-          </Link>
-          <Link href="/fund" className="hover:text-[var(--color-orange)]">
-            Fund
-          </Link>
-          <Link href="/#how" className="hover:text-[var(--color-orange)]">
-            Mechanics
-          </Link>
-          <Link href="/advertise" className="hover:text-[var(--color-orange)]">
-            Advertise
+          <Link href="/#rewards" className="hover:text-[var(--color-orange)]">
+            Rewards
           </Link>
           <a href={LINKS.x} className="hover:text-[var(--color-orange)]">
             X
@@ -52,9 +43,9 @@ export function SiteFooter() {
         ) : null}
         <p className="max-w-3xl text-xs leading-relaxed text-[var(--text-faint)]">
           {TOKEN.symbol} is a community token. Nothing here is financial advice, and no reward,
-          payout or return is guaranteed — reward pools only exist to the extent fees are
-          collected. Callouts and terminal data are information, not recommendations. Never sign a
-          transaction you do not understand.
+          payout or return is guaranteed — reward pools only exist to the extent fees are collected.
+          PRVC is not a mixer or tumbler and does not launder funds. Never sign a transaction you do
+          not understand.
         </p>
       </div>
     </footer>

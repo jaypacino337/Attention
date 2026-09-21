@@ -1,22 +1,24 @@
 @import "tailwindcss";
 
 /**
- * Brand tokens, taken from the Attention Markets mark: paper ground, near
- * black ink, an orange node and a lime satellite.
+ * PRVC brand tokens: a dark, private palette. Near-black ground, off-white
+ * text, a cool cyan primary accent and a restrained violet. The token names
+ * keep their legacy spelling (--color-orange = primary accent) so components
+ * need no rewrite; only the values change.
  *
  * Fonts are deliberately system stacks rather than next/font/google — the
  * build must not depend on fetching a font at compile time.
  */
 @theme {
-  --color-paper: #f4f2ee;
-  --color-paper-raised: #faf9f6;
-  --color-ink: #14110f;
-  --color-ink-soft: #4a4643;
-  --color-ink-faint: #8a8480;
-  --color-rule: #ddd8d0;
-  --color-orange: #f4501e;
-  --color-orange-soft: #fde4dc;
-  --color-lime: #b6cf3f;
+  --color-paper: #0b0e10;
+  --color-paper-raised: #12161a;
+  --color-ink: #eef2f4;
+  --color-ink-soft: #a7b0b6;
+  --color-ink-faint: #6b7378;
+  --color-rule: #232a2f;
+  --color-orange: #2fd6c6;
+  --color-orange-soft: #0f2a29;
+  --color-lime: #9b8cff;
 
   --font-sans: "Helvetica Neue", Helvetica, Inter, system-ui, -apple-system, Arial, sans-serif;
   --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
@@ -32,15 +34,14 @@
   --line: var(--color-rule);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ground: #100e0d;
-    --ground-raised: #1a1716;
-    --text: #f4f2ee;
-    --text-soft: #b8b2ac;
-    --text-faint: #7d7772;
-    --line: #2e2a28;
-  }
+/* PRVC is dark by design; keep a light option for viewers who force it. */
+:root[data-theme="light"] {
+  --ground: #f4f5f6;
+  --ground-raised: #ffffff;
+  --text: #0b0e10;
+  --text-soft: #455056;
+  --text-faint: #7d868b;
+  --line: #dfe3e6;
 }
 
 body {
