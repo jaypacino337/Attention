@@ -76,9 +76,9 @@ export default async function FundPage() {
       </h1>
       <p className="mt-3 text-lg font-bold">Trading where attention goes next.</p>
       <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--text-soft)]">
-        A portion of creator fees capitalizes the Attention Fund. It trades attention-driven
-        opportunities and participates in callouts. Realized profits and callout rewards are used
-        to buy back and burn $ATTENTION. Every number here is real and linked to the chain —
+        The 10% fund share of every fee cycle is used automatically to buy back and burn
+        $ATTENTION (see the payout rules). This page records anything the team trades or burns on
+        top of that, from data/fund.json. Every number here is real and linked to the chain,
         losses included.
       </p>
       {fund.updatedAt ? <p className="label mt-3">updated {date(fund.updatedAt)}</p> : null}
@@ -86,11 +86,11 @@ export default async function FundPage() {
       {!fundHasData(fund) ? (
         <div className="mt-10 border border-dashed rule px-6 py-14 text-center">
           <p className="font-mono text-xs uppercase tracking-widest text-[var(--text-faint)]">
-            fund not yet capitalized
+            no discretionary fund activity yet
           </p>
           <p className="mx-auto mt-3 max-w-md text-sm text-[var(--text-soft)]">
-            The dashboard lights up when the first fees arrive: value, positions, closed trades,
-            callouts, buybacks and burns — with explorer links on every transaction.
+            Automatic buybacks and burns happen every cycle regardless. Manual trades, callouts and
+            extra burns appear here with explorer links when they happen.
           </p>
         </div>
       ) : (

@@ -1,83 +1,27 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { FEE_SPLIT, MIN_ELIGIBLE, tierFor } from "../lib/config";
-import { bucketAmounts, burnBudget, distributeEpoch } from "../lib/rewards";
+import { FEE_SPLIT, MIN_ELIGIBLE, isEligible } from "../lib/config";
+import { bucketAmounts, xShare } from "../lib/rewards";
 
-test("fee split totals 100%", () => {
-  assert.equal(
-    FEE_SPLIT.reduce((sum, bucket) => sum + bucket.percent, 0),
-    100,
-  );
+test("fee split totals 100% and maps to memcoinz route buckets", () => {
+  assert.equal(FEE_SPLIT.reduce((s, b) => s + b.percent, 0), 100);
+  assert.deepEqual(FEE_SPLIT.map((b) => [b.id, b.percent]), [["holders", 50], ["x", 40], ["fund", 10]]);
 });
 
-test("bucket amounts follow the 25/25/40/10 split", () => {
-  const buckets = bucketAmounts(100);
-  assert.equal(buckets.callouts, 25);
-  assert.equal(buckets.fomo, 25);
-  assert.equal(buckets.social, 40);
-  assert.equal(buckets.treasury, 10);
+test("bucket amounts follow the 50/40/10 split and never exceed revenue", () => {
+  assert.deepEqual(bucketAmounts(1), { holders: 0.5, x: 0.4, fund: 0.1 });
+  const odd = bucketAmounts(0.000000007);
+  assert.ok(odd.holders + odd.x + odd.fund <= 0.000000007);
 });
 
-test("single 250K floor resolves correctly", () => {
-  assert.equal(tierFor(0).id, "none");
-  assert.equal(tierFor(249_999).id, "none");
-  assert.equal(tierFor(250_000).id, "base");
-  assert.equal(tierFor(10_000_000).id, "base");
-  // One floor, one weight — no boosted tier exists.
-  assert.equal(tierFor(10_000_000).weight, 1);
+test("250K floor", () => {
+  assert.equal(MIN_ELIGIBLE, 250_000);
+  assert.ok(!isEligible(249_999));
+  assert.ok(isEligible(250_000));
 });
 
-test("wallets below the minimum earn nothing", () => {
-  const { payouts } = distributeEpoch(100, [
-    { wallet: "small", balance: MIN_ELIGIBLE - 1, calloutScore: 999, socialScore: 999, xVerified: true },
-  ]);
-  assert.equal(payouts.length, 0);
-});
-
-test("equal callout scores split the pool equally — no tier boosts", () => {
-  const { payouts } = distributeEpoch(100, [
-    { wallet: "a", balance: 250_000, calloutScore: 10 },
-    { wallet: "b", balance: 5_000_000, calloutScore: 10 },
-  ]);
-  const a = payouts.find((p) => p.wallet === "a")!;
-  const b = payouts.find((p) => p.wallet === "b")!;
-  // Callout pool is 25; same score and same weight → 12.5 each, regardless of bag size.
-  assert.equal(Math.round(a.amounts.callouts * 100) / 100, 12.5);
-  assert.equal(Math.round(b.amounts.callouts * 100) / 100, 12.5);
-});
-
-test("social pool only pays verified X links", () => {
-  const { payouts, unclaimed } = distributeEpoch(100, [
-    { wallet: "unverified", balance: 300_000, socialScore: 500, xVerified: false },
-  ]);
-  const row = payouts.find((p) => p.wallet === "unverified")!;
-  assert.equal(row.amounts.social, 0);
-  // Nothing claimable, so the whole social bucket rolls forward.
-  assert.equal(unclaimed.social, 40);
-});
-
-test("an empty epoch rolls every holder bucket forward instead of losing it", () => {
-  const { unclaimed, payouts } = distributeEpoch(200, []);
-  assert.equal(payouts.length, 0);
-  assert.equal(unclaimed.callouts, 50);
-  assert.equal(unclaimed.fomo, 50);
-  assert.equal(unclaimed.social, 80);
-});
-
-test("distributed total never exceeds the revenue", () => {
-  const { payouts, revenue } = distributeEpoch(1_000, [
-    { wallet: "a", balance: 900_000, calloutScore: 4, socialScore: 200, xVerified: true },
-    { wallet: "b", balance: 400_000, calloutScore: 2, socialScore: 100, xVerified: true },
-    { wallet: "c", balance: 250_000, socialScore: 50, xVerified: true },
-  ]);
-  const paid = payouts.reduce((sum, p) => sum + p.total, 0);
-  // 90% is distributable; the treasury 10% is not paid out to holders.
-  assert.ok(paid <= revenue * 0.9 + 1e-9, `paid ${paid} exceeded 90% of ${revenue}`);
-  assert.ok(paid > 0);
-});
-
-test("treasury burn budget adds fees, trading profit and callout rewards", () => {
-  const budget = burnBudget(100, 25, 5);
-  assert.equal(budget.seed, 10);
-  assert.equal(budget.total, 40);
+test("𝕏 pool shares are equal and round down", () => {
+  assert.equal(xShare(1, 4), 0.25);
+  assert.equal(xShare(1, 3), 0.333333333);
+  assert.equal(xShare(1, 0), 0);
 });

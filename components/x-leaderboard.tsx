@@ -41,7 +41,7 @@ export function XLeaderboard({ rows }: { rows: XLeaderboardRow[] }) {
     <div>
       <div className="flex items-center justify-between gap-2 border-b rule pb-3">
         <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--text-faint)]">
-          Create attention → climb the board → get rewarded
+          Curated 𝕏 attention · payouts run on /x seats
         </p>
         <div className="flex gap-1">
           {WINDOWS.map((w) => (
@@ -64,7 +64,7 @@ export function XLeaderboard({ rows }: { rows: XLeaderboardRow[] }) {
       {visible.length === 0 ? (
         <Scanning
           title="Listening for attention"
-          line="Post $ATTENTION on X. Measured attention lands accounts on this board — and 40% of creator fees pay it."
+          line="Curated 𝕏 attention lands here. The 40% 𝕏 pool pays verified callers: get your code on /x."
           compact
         />
       ) : (

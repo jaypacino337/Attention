@@ -1,0 +1,9 @@
+{
+  "mint": "CSL5S49M4RBJZuvm289x4Mt7AtSsprWmZe7ne3Xppump",
+  "wallets": { "creator": "CREATOR_KEYPAIR" },
+  "route": { "airdrop": 50, "treasury": 40, "buyback": 10 },
+  "payTo": { "treasury": "<X_POOL_WALLET_PUBLIC_KEY>" },
+  "snapshot": { "minBalance": 250000 },
+  "airdrop": { "mode": "prorata", "capBps": 400, "minPayoutSol": 0.0001 },
+  "intervalMinutes": 60
+}

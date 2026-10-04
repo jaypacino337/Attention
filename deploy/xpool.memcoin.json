@@ -1,0 +1,7 @@
+{
+  "mint": "CSL5S49M4RBJZuvm289x4Mt7AtSsprWmZe7ne3Xppump",
+  "wallets": { "rewards": "XPOOL_KEYPAIR" },
+  "snapshot": { "minBalance": 250000 },
+  "airdrop": { "mode": "equal", "reserveSol": 0.05, "minPayoutSol": 0.001 },
+  "seats": { "url": "https://attnmarkets.fun" }
+}

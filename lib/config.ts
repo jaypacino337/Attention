@@ -1,75 +1,59 @@
 /**
- * Single source of truth for ATTENTION tokenomics.
+ * Single source of truth for $ATTENTION economics and identity.
  *
- * Everything the site displays — fee splits, eligibility thresholds, gate
- * levels — reads from here, so changing the economics is a one-file edit and
- * the UI, the API routes and the reward math stay in agreement.
+ * Everything the site displays (fee split, eligibility, 𝕏-pool rules) and the
+ * payout worker config documented in deploy/RAILWAY.md read from the same
+ * numbers, so changing the economics is a one-file edit plus a worker
+ * variable change. The split is asserted to total 100 at module load.
  */
 
-/** Token identity. Set NEXT_PUBLIC_ATTENTION_MINT to the PRVC mint when it exists. */
+/** Token identity. The launched pump.fun mint (Token-2022); env can override if it ever migrates. */
 export const TOKEN = {
-  symbol: "PRVC",
-  name: "PRVC",
-  /**
-   * The PRVC mint. Deliberately blank by default — this brand must NOT point at
-   * any other token. Set NEXT_PUBLIC_ATTENTION_MINT to the real PRVC mint to
-   * turn on live stats and holder features.
-   */
-  mint: process.env.NEXT_PUBLIC_ATTENTION_MINT ?? "",
-  /** pump.fun mints are 6 decimals. Overridable if the token migrates. */
+  symbol: "ATTENTION",
+  name: "Attention Markets",
+  mint: process.env.NEXT_PUBLIC_ATTENTION_MINT || "CSL5S49M4RBJZuvm289x4Mt7AtSsprWmZe7ne3Xppump",
+  /** pump.fun mints are 6 decimals. */
   decimals: Number(process.env.NEXT_PUBLIC_ATTENTION_DECIMALS ?? 6),
+  supply: 1_000_000_000,
 } as const;
 
 export const isMintConfigured = () => TOKEN.mint.trim().length > 0;
 
-/**
- * Wallet connect is OFF by design: rewards are automatic airdrops to holders
- * found by the on-chain scan, so nobody has to connect anything — holding the
- * token is the registration. The full auth stack (challenge/verify/sessions)
- * stays in the codebase, dormant; set NEXT_PUBLIC_WALLET_CONNECT=true (plus
- * the mint) only if per-wallet features ever return.
- */
-export const WALLET_ENABLED =
-  isMintConfigured() && process.env.NEXT_PUBLIC_WALLET_CONNECT === "true";
+/** One floor for every pool: hold this many whole $ATTENTION. */
+export const MIN_ELIGIBLE = 250_000;
+
+export function isEligible(balance: number): boolean {
+  return balance >= MIN_ELIGIBLE;
+}
 
 /**
- * Where trading fees go. Must total 100.
- * Validated at module load so a bad edit fails loudly instead of silently
- * shipping a split that doesn't add up.
+ * Where creator fees go, every cycle. Must total 100.
+ * `route` is the matching memcoinz flywheel bucket (deploy/RAILWAY.md).
  */
 export const FEE_SPLIT = [
   {
-    id: "callouts",
-    percent: 25,
-    name: "Pump.fun",
-    tagline: "Call attention early.",
-    detail: "Rewards people who identify attention through pump.fun callouts.",
-    accent: "orange",
+    id: "holders",
+    percent: 50,
+    name: "Holders",
+    route: "airdrop",
+    tagline: "Hold it. Get paid.",
+    detail: `Every wallet holding ${MIN_ELIGIBLE.toLocaleString("en-US")}+ $ATTENTION, pro-rata to balance, max 4% of the pot per wallet.`,
   },
   {
-    id: "fomo",
-    percent: 25,
-    name: "FOMO",
-    tagline: "Find attention early.",
-    detail: "Rewards people who identify attention through FOMO.",
-    accent: "ink",
-  },
-  {
-    id: "social",
+    id: "x",
     percent: 40,
-    name: "X",
-    tagline: "Create attention.",
-    detail:
-      "The largest allocation — rewards creating and maintaining attention around $ATTENTION on X.",
-    accent: "lime",
+    name: "𝕏 Callers",
+    route: "treasury → 𝕏 pool wallet",
+    tagline: "Call it. Get paid.",
+    detail: "Split equally between every holder with a live, verified $ATTENTION callout on 𝕏. One account, one share.",
   },
   {
-    id: "treasury",
+    id: "fund",
     percent: 10,
-    name: "Attention Fund",
-    tagline: "Hunt where attention goes next.",
-    detail: "Protocol capital trading attention-driven opportunities and joining callouts.",
-    accent: "orange",
+    name: "Buyback & burn",
+    route: "buyback",
+    tagline: "Less supply. Every cycle.",
+    detail: "Market-buys $ATTENTION and burns it on-chain, every cycle.",
   },
 ] as const;
 
@@ -81,65 +65,37 @@ if (total !== 100) {
   throw new Error(`FEE_SPLIT must total 100%, got ${total}%`);
 }
 
+/** Holder pool settings, mirrored in the flywheel worker's MEMCOIN_CONFIG_JSON. */
+export const HOLDER_POOL = {
+  mode: "prorata" as const,
+  capBps: 400,
+  intervalMinutes: 60,
+};
+
 /**
- * Holder eligibility. `min` is a whole-token amount (not base units).
- *
- * ONE floor, deliberately: hold 250K $ATTENTION and you're in every reward
- * pool. No boosted tiers, no weight multipliers — simple to explain in a
- * post, simple to verify on-chain.
+ * 𝕏 callout pool. A "seat" = a wallet whose 𝕏 callout was verified (free
+ * oEmbed read, wallet-bound code). Seats last `windowDays` from the post's
+ * timestamp; posting a fresh callout renews it. The pool is split equally
+ * between live seats that still hold MIN_ELIGIBLE.
  */
-export const TIERS = [
-  {
-    id: "none",
-    name: "Unqualified",
-    min: 0,
-    weight: 0,
-    perks: ["Public site access"],
-  },
-  {
-    id: "base",
-    name: "250K",
-    min: 250_000,
-    weight: 1,
-    perks: [
-      "Eligible for every reward pool",
-      "Automatic airdrops — nothing to claim",
-      "Counted in every epoch's holder scan",
-    ],
-  },
-] as const;
+export const X_POOL = {
+  /** The 𝕏 account every callout must @mention (no @). */
+  handle: process.env.NEXT_PUBLIC_X_HANDLE || "Attn_Markets_",
+  windowDays: 7,
+  mode: "equal" as const,
+  /** Cron for the 𝕏-pool payout service (UTC): every 6 hours. */
+  cron: "0 */6 * * *",
+  /** Seats are uncapped: every verified caller gets one. */
+  seatCap: 100_000,
+};
 
-export type Tier = (typeof TIERS)[number];
-export type TierId = Tier["id"];
+export const X_WINDOW_MS = X_POOL.windowDays * 86_400_000;
 
-export const MIN_ELIGIBLE = 250_000;
-/** Minimum balance required for terminal access, if gating is ever re-enabled. */
-export const TERMINAL_GATE = MIN_ELIGIBLE;
-
-/** Resolve a whole-token balance to its tier. */
-export function tierFor(balance: number): Tier {
-  let resolved: Tier = TIERS[0];
-  for (const tier of TIERS) {
-    if (balance >= tier.min) resolved = tier;
-  }
-  return resolved;
-}
-
-export function isEligible(balance: number): boolean {
-  return balance >= MIN_ELIGIBLE;
-}
-
-/** Progress toward the next tier, for the dashboard meter. */
-export function nextTier(balance: number): { tier: Tier; needed: number } | null {
-  const upcoming = TIERS.find((t) => t.min > balance);
-  if (!upcoming) return null;
-  return { tier: upcoming, needed: upcoming.min - balance };
-}
+/** Public site URL (the worker's `seats.url`). */
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://attnmarkets.fun";
 
 export const LINKS = {
-  x: process.env.NEXT_PUBLIC_X_URL ?? "https://x.com",
-  pumpfun:
-    process.env.NEXT_PUBLIC_PUMPFUN_URL ??
-    (TOKEN.mint ? `https://pump.fun/coin/${TOKEN.mint}` : ""),
-  docs: "/#about",
+  x: process.env.NEXT_PUBLIC_X_URL || `https://x.com/${X_POOL.handle}`,
+  pumpfun: process.env.NEXT_PUBLIC_PUMPFUN_URL || `https://pump.fun/coin/${TOKEN.mint}`,
+  solscan: `https://solscan.io/token/${TOKEN.mint}`,
 } as const;

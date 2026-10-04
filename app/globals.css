@@ -1,47 +1,63 @@
 @import "tailwindcss";
 
 /**
- * PRVC brand tokens: a dark, private palette. Near-black ground, off-white
- * text, a cool cyan primary accent and a restrained violet. The token names
- * keep their legacy spelling (--color-orange = primary accent) so components
- * need no rewrite; only the values change.
+ * Attention Markets: bold magazine / neo-brutalist.
+ * Off-white paper, heavy black type, ONE electric accent (cobalt), hard
+ * offset shadows instead of glows, 2px ink rules instead of soft borders.
  *
- * Fonts are deliberately system stacks rather than next/font/google — the
- * build must not depend on fetching a font at compile time.
+ * Legacy aliases (--ground, --text, --line, --color-orange…) are kept so the
+ * scanner / fund / terminal pages pick up the new system without a rewrite;
+ * --color-orange is now the cobalt accent.
  */
 @theme {
-  --color-paper: #0b0e10;
-  --color-paper-raised: #12161a;
-  --color-ink: #eef2f4;
-  --color-ink-soft: #a7b0b6;
-  --color-ink-faint: #6b7378;
-  --color-rule: #232a2f;
-  --color-orange: #2fd6c6;
-  --color-orange-soft: #0f2a29;
-  --color-lime: #9b8cff;
+  --color-paper: #f1ede3;
+  --color-paper-2: #e8e3d6;
+  --color-ink: #0c0c0c;
+  --color-ink-soft: #3d3b36;
+  --color-ink-faint: #6f6b62;
+  --color-cobalt: #1f3cff;
+  --color-cobalt-ink: #ffffff;
 
-  --font-sans: "Helvetica Neue", Helvetica, Inter, system-ui, -apple-system, Arial, sans-serif;
-  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  /* legacy names used across older components */
+  --color-orange: #1f3cff;
+  --color-lime: #1f3cff;
+  --color-rule: #0c0c0c;
+
+  --font-sans: var(--font-archivo), "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-display: var(--font-archivo), "Arial Black", Impact, sans-serif;
+  --font-serif: var(--font-instrument), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, Menlo, Consolas, monospace;
+
+  --shadow-hard: 6px 6px 0 0 var(--color-ink);
+  --shadow-hard-sm: 3px 3px 0 0 var(--color-ink);
+  --shadow-hard-cobalt: 6px 6px 0 0 var(--color-cobalt);
+
+  --animate-marquee: marquee var(--duration, 30s) linear infinite;
+  --animate-marquee-reverse: marquee-reverse var(--duration, 30s) linear infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-100% - var(--gap, 2rem))); }
+}
+@keyframes marquee-reverse {
+  from { transform: translateX(calc(-100% - var(--gap, 2rem))); }
+  to { transform: translateX(0); }
 }
 
 :root {
+  color-scheme: light;
   --ground: var(--color-paper);
-  --ground-raised: var(--color-paper-raised);
+  --ground-raised: #faf8f2;
   --text: var(--color-ink);
   --text-soft: var(--color-ink-soft);
   --text-faint: var(--color-ink-faint);
-  --line: var(--color-rule);
+  --line: var(--color-ink);
 }
 
-/* PRVC is dark by design; keep a light option for viewers who force it. */
-:root[data-theme="light"] {
-  --ground: #f4f5f6;
-  --ground-raised: #ffffff;
-  --text: #0b0e10;
-  --text-soft: #455056;
-  --text-faint: #7d868b;
-  --line: #dfe3e6;
+html {
+  overflow-x: clip;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -49,173 +65,171 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Blueprint ground: the faint grid from the brand banner. */
-.blueprint {
-  background-image:
-    linear-gradient(to right, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px);
-  background-size: 64px 64px;
+::selection {
+  background: var(--color-cobalt);
+  color: #fff;
 }
 
-.rule {
-  border-color: var(--line);
+@layer components {
+/* Paper grain: a faint dot screen, like newsprint. */
+.paper {
+  background-image: radial-gradient(color-mix(in srgb, var(--color-ink) 9%, transparent) 1px, transparent 1px);
+  background-size: 14px 14px;
 }
 
-/* Corner brackets used on framed panels in the brand system. */
-.bracket {
-  position: relative;
+/* Display type: wide, black, tight. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-stretch: 125%;
+  letter-spacing: -0.035em;
+  line-height: 0.86;
+  text-transform: uppercase;
 }
+.condensed {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-stretch: 62%;
+  letter-spacing: -0.02em;
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+.outline-text {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--color-ink);
+}
+
+.rule { border-color: var(--line); }
+
+.serif-italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: -0.01em;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* Brutalist panels: hard ink border + offset shadow. */
+.panel {
+  border: 2px solid var(--color-ink);
+  background: var(--ground-raised);
+  box-shadow: var(--shadow-hard);
+}
+.lift {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lift:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 0 var(--color-ink);
+}
+.lift:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 0 var(--color-ink);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 2px solid var(--color-ink);
+  padding: 0.8rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-hard-sm);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s;
+}
+.btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 0 var(--color-ink); }
+.btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 0 var(--color-ink); }
+.btn:focus-visible { outline: 3px solid var(--color-cobalt); outline-offset: 3px; }
+.btn-cobalt { background: var(--color-cobalt); color: #fff; }
+.btn-ink { background: var(--color-ink); color: var(--color-paper); }
+.btn-paper { background: var(--ground-raised); color: var(--color-ink); }
+.btn:disabled { opacity: 0.5; pointer-events: none; }
+
+.field {
+  width: 100%;
+  border: 2px solid var(--color-ink);
+  background: #fff;
+  padding: 0.8rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+.field:focus { outline: none; box-shadow: var(--shadow-hard-cobalt); }
+
+.mask-fade-x {
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+/* Bracket corners (used by legacy panels). */
+.bracket { position: relative; }
 .bracket::before,
 .bracket::after {
   content: "";
   position: absolute;
   width: 12px;
   height: 12px;
-  border-color: var(--color-orange);
+  border-color: var(--color-cobalt);
   border-style: solid;
   border-width: 0;
 }
-.bracket::before {
-  top: -1px;
-  left: -1px;
-  border-top-width: 2px;
-  border-left-width: 2px;
-}
-.bracket::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom-width: 2px;
-  border-right-width: 2px;
+.bracket::before { top: -2px; left: -2px; border-top-width: 3px; border-left-width: 3px; }
+.bracket::after { bottom: -2px; right: -2px; border-bottom-width: 3px; border-right-width: 3px; }
+.blueprint { background-image: radial-gradient(color-mix(in srgb, var(--color-ink) 9%, transparent) 1px, transparent 1px); background-size: 14px 14px; }
+
 }
 
-.serif-italic {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-}
-
-.label {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-
-@keyframes orbit-pulse {
-  0%,
-  100% {
-    opacity: 0.35;
-    transform: scale(0.96);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.04);
-  }
-}
-.orbit-node {
-  animation: orbit-pulse 3.2s ease-in-out infinite;
-}
-
-/* Slow orbital drift for the hero ring — activity, not decoration. */
-@keyframes orbit-drift {
-  from {
-    transform: rotate(-16deg);
-  }
-  to {
-    transform: rotate(344deg);
-  }
-}
-.orbit-ring {
-  transform-origin: 132px 108px;
-  animation: orbit-drift 60s linear infinite;
-}
-
-@keyframes node-blink {
-  0%,
-  100% {
-    opacity: 0.25;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-.node-blink {
-  animation: node-blink 2.4s ease-in-out infinite;
-}
-.node-blink-slow {
-  animation: node-blink 3.8s ease-in-out infinite;
-  animation-delay: 1.1s;
-}
-
-/* Radar sweep for scanning states — signal, not decoration. */
-@keyframes radar-sweep {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.radar {
-  position: relative;
-  border-radius: 9999px;
-  border: 1px solid var(--line);
-  overflow: hidden;
-}
+/* Legacy scanner/radar animations (scanner + terminal pages). */
+@keyframes radar-sweep { to { transform: rotate(360deg); } }
+@keyframes node-blink { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@keyframes orbit-pulse { 0%, 100% { opacity: 0.35; transform: scale(0.96); } 50% { opacity: 1; transform: scale(1.04); } }
+@keyframes orbit-drift { from { transform: rotate(-16deg); } to { transform: rotate(344deg); } }
+.orbit-node { animation: orbit-pulse 3.2s ease-in-out infinite; }
+.orbit-ring { transform-origin: 132px 108px; animation: orbit-drift 60s linear infinite; }
+.node-blink { animation: node-blink 2.4s ease-in-out infinite; }
+.node-blink-slow { animation: node-blink 3.8s ease-in-out infinite; animation-delay: 1.1s; }
+.radar { position: relative; border-radius: 9999px; border: 2px solid var(--line); overflow: hidden; }
 .radar::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  background: conic-gradient(
-    from 0deg,
-    color-mix(in srgb, var(--color-orange) 35%, transparent) 0deg,
-    transparent 70deg,
-    transparent 360deg
-  );
+  background: conic-gradient(from 0deg, color-mix(in srgb, var(--color-cobalt) 35%, transparent) 0deg, transparent 70deg, transparent 360deg);
   animation: radar-sweep 3.5s linear infinite;
 }
-.radar-ring {
-  position: absolute;
-  inset: 22%;
-  border: 1px solid var(--line);
-  border-radius: 9999px;
-}
-.radar-dot {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 4px;
-  height: 4px;
-  margin: -2px 0 0 -2px;
-  border-radius: 9999px;
-  background: var(--color-orange);
-}
+.radar-ring { position: absolute; inset: 22%; border: 1px solid var(--line); border-radius: 9999px; }
+.radar-dot { position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 9999px; background: var(--color-cobalt); }
+.scan-rotate { transform-box: fill-box; transform-origin: center; animation: radar-sweep 12s linear infinite; }
+.scan-rotate-slow { transform-box: fill-box; transform-origin: center; animation: radar-sweep 40s linear infinite reverse; }
 
-/* Rotating sweep for the scan globe — center-origin, works at any size. */
-.scan-rotate {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: radar-sweep 12s linear infinite;
-}
-.scan-rotate-slow {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: radar-sweep 40s linear infinite reverse;
-}
+/* Blinking "live" dot. */
+@keyframes live { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+.live-dot { width: 8px; height: 8px; border-radius: 9999px; background: var(--color-cobalt); animation: live 1.4s steps(2, jump-none) infinite; }
+
+/* Sticker stamp spin. */
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.spin-slow { animation: spin-slow 18s linear infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .orbit-node,
-  .orbit-ring,
-  .node-blink,
-  .node-blink-slow,
-  .radar::after,
-  .scan-rotate,
-  .scan-rotate-slow {
-    animation: none;
+  html { scroll-behavior: auto; }
+  .orbit-node, .orbit-ring, .node-blink, .node-blink-slow, .radar::after, .scan-rotate, .scan-rotate-slow,
+  .live-dot, .spin-slow, .animate-marquee, .animate-marquee-reverse {
+    animation: none !important;
   }
-  /* SMIL travelers can't be paused from CSS — hide them; static nodes remain. */
-  .motion-only {
-    display: none;
-  }
+  .lift, .btn { transition: none; }
+  .motion-only { display: none; }
 }
