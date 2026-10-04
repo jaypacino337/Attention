@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { MIN_ELIGIBLE, isMintConfigured, tierFor } from "./config";
+import { MIN_ELIGIBLE, isMintConfigured } from "./config";
 import { scanHolders } from "./holders";
 import { shortAddress } from "./solana";
 
@@ -42,7 +42,7 @@ async function build(): Promise<Leaderboard | null> {
         owner: holder.owner,
         display: shortAddress(holder.owner),
         balance: Math.round(holder.balance),
-        tier: tierFor(holder.balance).name,
+        tier: holder.balance >= MIN_ELIGIBLE ? "250K+" : "—",
       })),
     };
   } catch {
