@@ -3,11 +3,12 @@ import "./globals.css";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { WalletProvider } from "@/components/wallet-context";
+import { SolanaWalletProvider } from "@/components/solana-wallet";
 
 export const metadata: Metadata = {
-  title: "PRVC — Privacy on Solana",
+  title: "PRVC — private swaps and sends on Solana",
   description:
-    "PRVC is a privacy-first community token on Solana. Privacy is a right, not a feature.",
+    "Send SOL through throwaway relays and decoys, or swap straight into someone else's wallet. One transaction, one signature.",
   openGraph: {
     title: "PRVC",
     description: "Privacy on Solana. Privacy is a right, not a feature.",
@@ -20,9 +21,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="min-h-screen antialiased">
         <WalletProvider>
-          <SiteNav />
-          <main>{children}</main>
-          <SiteFooter />
+          <SolanaWalletProvider>
+            <SiteNav />
+            <main>{children}</main>
+            <SiteFooter />
+          </SolanaWalletProvider>
         </WalletProvider>
       </body>
     </html>

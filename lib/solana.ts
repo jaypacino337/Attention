@@ -12,7 +12,7 @@ const RPC_URL = process.env.SOLANA_RPC_URL ?? "https://api.mainnet-beta.solana.c
 
 let connection: Connection | null = null;
 
-function rpc(): Connection {
+export function getConnection(): Connection {
   if (!connection) {
     connection = new Connection(RPC_URL, "confirmed");
   }
@@ -49,7 +49,7 @@ export async function getAttentionBalance(owner: string): Promise<BalanceResult>
   }
 
   try {
-    const accounts = await rpc().getParsedTokenAccountsByOwner(ownerKey, { mint: mintKey });
+    const accounts = await getConnection().getParsedTokenAccountsByOwner(ownerKey, { mint: mintKey });
     const balance = accounts.value.reduce((sum, { account }) => {
       const parsed = account.data.parsed as {
         info?: { tokenAmount?: { uiAmount: number | null } };
