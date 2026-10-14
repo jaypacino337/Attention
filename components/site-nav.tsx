@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Mark } from "./mark";
-import { ConnectButton } from "./connect-button";
+import { WalletButton } from "./solana-wallet";
 import { LINKS as EXTERNAL } from "@/lib/config";
 
 const LINKS = [
-  { href: "/", label: "PRVC" },
-  { href: "/#about", label: "About" },
-  { href: "/#rewards", label: "Rewards" },
+  { href: "/", label: "Home" },
+  { href: "/swap", label: "Swap" },
+  { href: "/send", label: "Send" },
+  { href: "/docs", label: "Docs" },
 ];
 
 export function SiteNav() {
@@ -20,15 +21,12 @@ export function SiteNav() {
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
         <Link href="/" className="flex shrink-0 items-center gap-2.5 font-extrabold tracking-tight">
           <Mark className="h-7 w-7" />
-          <span className="hidden text-[15px] sm:inline">
-            PRVC <span className="serif-italic font-normal">privacy</span>
-          </span>
+          <span className="text-[15px]">PRVC</span>
         </Link>
 
         <div className="flex items-center gap-4 overflow-x-auto sm:gap-6">
           {LINKS.map((link) => {
-            const active =
-              link.href === "/" ? pathname === "/" : pathname.startsWith(link.href.split("#")[0]) && link.href !== "/#rewards";
+            const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
             return (
               <Link
                 key={link.href}
@@ -48,19 +46,12 @@ export function SiteNav() {
         <div className="flex shrink-0 items-center gap-3">
           <a
             href={EXTERNAL.x}
-            className="font-mono text-[11px] font-bold uppercase tracking-widest text-[var(--text-soft)] hover:text-[var(--color-orange)]"
+            aria-label="PRVC on X"
+            className="hidden font-mono text-[11px] font-bold uppercase tracking-widest text-[var(--text-soft)] hover:text-[var(--color-orange)] sm:inline"
           >
             𝕏
           </a>
-          {EXTERNAL.pumpfun ? (
-            <a
-              href={EXTERNAL.pumpfun}
-              className="bg-[var(--color-orange)] px-3 py-1.5 text-xs font-bold text-white"
-            >
-              Buy
-            </a>
-          ) : null}
-          <ConnectButton />
+          <WalletButton />
         </div>
       </nav>
     </header>

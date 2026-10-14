@@ -3,7 +3,8 @@ import { ContractAddress } from "@/components/contract-address";
 import { TokenStats } from "@/components/token-stats";
 import { Scramble } from "@/components/scramble";
 import { CipherField } from "@/components/cipher-field";
-import { ConfidentialCard } from "@/components/confidential-card";
+import { HeroRoute } from "@/components/hero-route";
+import { ByteBudget } from "@/components/byte-budget";
 import { RevealOnScroll } from "@/components/reveal";
 import { LINKS, MIN_ELIGIBLE, TOKEN } from "@/lib/config";
 
@@ -12,42 +13,46 @@ export const dynamic = "force-dynamic";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
 
-const PRINCIPLES = ["No tracking", "No accounts", "No gatekeepers", "Zero-knowledge", "Community-owned", "Privacy is a right"];
+const PRINCIPLES = ["Private sends", "Swap to anyone", "One signature", "Zero custody", "All or nothing", "Privacy is a right"];
 
 const STEPS = [
   {
     n: "01",
-    title: "Encrypt",
-    body: "Your balance and transfer amounts are encrypted on-chain with twisted ElGamal encryption. Only you hold the key to read them.",
+    title: "Build",
+    body: "Your browser splits the amount into uneven parts, makes fresh throwaway relay wallets and adds decoys sized just like the real parts.",
   },
   {
     n: "02",
-    title: "Prove",
-    body: "Your wallet attaches zero-knowledge proofs: the amount is in range and you can afford it. The proof reveals nothing else.",
+    title: "Sign once",
+    body: "You approve one transaction. The relays co-sign it, then their keys are thrown away. PRVC never holds your funds or your keys.",
   },
   {
     n: "03",
-    title: "Verify",
-    body: "Solana validators check the proofs and settle the transfer. They confirm it is valid without ever seeing a number.",
+    title: "Settle",
+    body: "Everything lands in a single atomic transaction. Every relay ends at zero, decoys come home, and if any step fails nothing moves at all.",
   },
 ];
 
 const FAQ = [
   {
-    q: "Is PRVC a mixer?",
-    a: "No. PRVC does not mix, tumble or launder anything, and it never breaks transaction provenance. It is a community token that champions the compliant privacy already built into Solana: hiding amounts, not hiding where funds came from.",
+    q: "What does Send actually do?",
+    a: "It splits your SOL into parts and routes them through throwaway relay wallets, mixed with look-alike decoys that return to you, all inside one transaction you sign. Explorers and wallet trackers see a tangle of transfers between fresh wallets, not one clean line from you to them.",
+  },
+  {
+    q: "Is it safe? Who holds my funds?",
+    a: "Nobody but you. Routes are built in your browser, the transaction is all-or-nothing, relays always end at zero, and PRVC has no contract, pool or wallet that ever touches your money. Every send is simulated before you are asked to sign.",
+  },
+  {
+    q: "How private is it, honestly?",
+    a: "It breaks the obvious link that explorers, trackers and casual watchers rely on. Someone who decodes the full transaction instruction by instruction can still follow it, so treat it as strong everyday privacy, not invisibility. Use it lawfully.",
+  },
+  {
+    q: "What does it cost?",
+    a: "PRVC charges nothing. You pay the normal Solana network fee for one transaction, a fraction of a cent, plus Jupiter's pool fees on swaps.",
   },
   {
     q: "How do holders get rewarded?",
-    a: `Creator fees are shared back to holders. The protocol scans holders on-chain and airdrops straight to wallets holding at least ${fmt(MIN_ELIGIBLE)} ${TOKEN.symbol}. There is nothing to connect, sign or claim.`,
-  },
-  {
-    q: "Do I need to connect my wallet?",
-    a: "Never. If anything asks you to connect or sign to “claim” PRVC rewards, it is a scam. Payouts find your wallet on their own.",
-  },
-  {
-    q: "What privacy tech is this about?",
-    a: "Solana's Token-2022 Confidential Transfers: encrypted balances plus zero-knowledge proofs that validators verify. The transfer card above illustrates how a confidential transfer looks compared with a public one.",
+    a: `Creator fees are shared back to holders. The protocol scans holders on-chain and airdrops straight to wallets holding at least ${fmt(MIN_ELIGIBLE)} ${TOKEN.symbol}. There is nothing to claim, and anyone asking you to sign to “claim” is a scammer.`,
   },
 ];
 
@@ -65,7 +70,7 @@ export default async function HomePage() {
           <div>
             <p className="label flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-orange)] pulse" />
-              Privacy on Solana
+              Private sends &amp; swaps on Solana
             </p>
             <h1 className="mt-6 text-[clamp(3.2rem,9vw,7.5rem)] font-extrabold leading-[0.88] tracking-[-0.045em]">
               <Scramble text="Privacy" className="block" />
@@ -74,32 +79,29 @@ export default async function HomePage() {
               </span>
             </h1>
             <p className="mt-7 max-w-lg text-lg leading-relaxed text-[var(--text-soft)]">
-              <strong className="text-[var(--text)]">{TOKEN.symbol}</strong> is the community token for financial privacy on
-              Solana. No tracking, no gatekeepers. Hold it and share in the creator fees, airdropped automatically.
+              <strong className="text-[var(--text)]">{TOKEN.symbol}</strong> routes your sends through throwaway relays and
+              look-alike decoys, all packed into one transaction you sign. Or swap straight into someone&apos;s wallet so it
+              reads as your own trade.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
-              {LINKS.pumpfun ? (
-                <a href={LINKS.pumpfun} className="btn-primary">
-                  Buy {TOKEN.symbol} <span aria-hidden="true">→</span>
-                </a>
-              ) : (
-                <span className="btn-primary opacity-70" aria-disabled="true">
-                  Launching soon
-                </span>
-              )}
-              <Link href="#how" className="btn-ghost">
-                How privacy works
+              <Link href="/send" className="btn-primary">
+                Send privately <span aria-hidden="true">→</span>
               </Link>
-              <a href={LINKS.x} className="btn-ghost" aria-label="PRVC on X">
-                𝕏
-              </a>
+              <Link href="/swap" className="btn-ghost">
+                Open swap
+              </Link>
+              {LINKS.pumpfun ? (
+                <a href={LINKS.pumpfun} className="btn-ghost">
+                  Buy {TOKEN.symbol}
+                </a>
+              ) : null}
             </div>
             <ContractAddress className="mt-5" />
           </div>
 
           <div className="flex justify-center md:justify-end" data-reveal>
-            <ConfidentialCard />
+            <HeroRoute />
           </div>
         </div>
       </section>
@@ -116,41 +118,63 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* WHAT PRVC IS */}
-      <section id="about" className="border-b rule">
+      {/* TWO WAYS IN */}
+      <section id="tools" className="border-b rule">
         <div className="mx-auto max-w-6xl px-5 py-20 md:py-28">
           <div data-reveal className="max-w-3xl">
-            <p className="label">What PRVC is</p>
+            <p className="label">Two ways in</p>
             <h2 className="mt-4 text-[clamp(2.4rem,5vw,4rem)] font-extrabold leading-[0.95] tracking-[-0.03em]">
-              Your money is <span className="serif-italic font-normal">your business</span>.
+              Pick how the <span className="serif-italic font-normal">money moves</span>.
             </h2>
             <p className="mt-5 text-[15px] leading-relaxed text-[var(--text-soft)]">
-              On most chains anyone can read your balance and every payment you have ever made. PRVC stands for the opposite,
-              and points at the privacy technology Solana already ships.
+              Both end the same way: the money arrives, and nothing on an explorer draws a straight line from you to them.
             </p>
           </div>
 
-          <div className="mt-14 grid gap-4 md:grid-cols-3">
-            {[
-              { k: "ZK", title: "Real privacy tech", body: "Built on Solana's confidential-transfer cryptography: hide amounts, keep provenance." },
-              { k: "∅", title: "No surveillance", body: "No accounts, no wallet tracking, no data harvesting. Holding is the only thing that matters." },
-              { k: "100%", title: "Community-owned", body: "Creator fees flow back to holders automatically. No team allocation gate, no lockups." },
-            ].map((c, i) => (
-              <div key={c.title} className="card" data-reveal style={{ transitionDelay: `${i * 90}ms` }}>
-                <span className="font-mono text-3xl font-bold text-[var(--color-orange)]">{c.k}</span>
-                <h3 className="mt-6 text-lg font-bold">{c.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--text-soft)]">{c.body}</p>
+          <div className="mt-14 grid gap-4 md:grid-cols-2">
+            <div className="card flex flex-col" data-reveal>
+              <span className="label text-[var(--color-orange)]">Swap</span>
+              <h3 className="mt-3 text-2xl font-extrabold tracking-tight">Pay in the token they want.</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--text-soft)]">The output lands in their wallet, and on-chain it reads as your own swap.</p>
+              <div className="mt-6 border rule font-mono text-xs">
+                <p className="border-b rule px-3 py-2 text-[10px] uppercase tracking-widest text-[var(--text-faint)]">Balance changes, as an explorer lists them</p>
+                {[
+                  ["You", "SOL", "−12.50 SOL", "text-[var(--text)]"],
+                  ["Swap route", "pools", "in and out", "text-[var(--text-soft)]"],
+                  ["Recipient", "USDC account", "+1,484.10 USDC", "text-[var(--color-orange)]"],
+                ].map(([w, a, v, c]) => (
+                  <div key={w} className="flex items-center justify-between border-b rule px-3 py-2.5 last:border-b-0">
+                    <span><span className="text-[var(--text)]">{w}</span> <span className="text-[var(--text-faint)]">{a}</span></span>
+                    <span className={c}>{v}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+              <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <div><p className="label">Transfers to them</p><p className="mt-1 font-mono text-2xl font-bold">0</p></div>
+                <div><p className="label">Reads as</p><p className="mt-1 font-bold">a swap by you</p></div>
+              </div>
+              <Link href="/swap" className="btn-ghost mt-6 self-start">Open swap →</Link>
+            </div>
 
-          <div data-reveal className="spec mt-10">
-            <span className="label text-[var(--color-orange)]">Plainly</span>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--text-soft)]">
-              <strong className="text-[var(--text)]">PRVC is not a mixer or a tumbler.</strong> It does not launder funds, break
-              transaction provenance or promise &quot;clean&quot; coins. It champions legitimate, compliant financial privacy:
-              the kind already built into Solana.
-            </p>
+            <div className="card flex flex-col" data-reveal style={{ transitionDelay: "90ms" }}>
+              <span className="label text-[var(--color-orange)]">Send</span>
+              <h3 className="mt-3 text-2xl font-extrabold tracking-tight">SOL through relays and decoys.</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--text-soft)]">Split into parts and relayed through throwaway wallets, with decoys sized just like them.</p>
+              <div className="mt-6 grid grid-cols-3 gap-px border rule bg-[var(--line)] text-center">
+                {[["up to 25", "transfers"], ["1", "signature"], ["0", "left in relays"]].map(([n, l]) => (
+                  <div key={l} className="bg-[var(--ground-raised)] px-2 py-5">
+                    <p className="font-mono text-2xl font-black text-[var(--color-orange)]">{n}</p>
+                    <p className="mt-1 text-xs text-[var(--text-soft)]">{l}</p>
+                  </div>
+                ))}
+              </div>
+              <ul className="mt-5 space-y-2 text-sm text-[var(--text-soft)]">
+                <li>→ Fresh relay wallets made in your browser, every time</li>
+                <li>→ Decoys leave you and come straight back</li>
+                <li>→ All or nothing: one atomic transaction</li>
+              </ul>
+              <Link href="/send" className="btn-ghost mt-auto self-start pt-3">Send privately →</Link>
+            </div>
           </div>
         </div>
       </section>
@@ -159,9 +183,9 @@ export default async function HomePage() {
       <section id="how" className="relative border-b rule bg-[var(--ground-raised)]">
         <div className="mx-auto max-w-6xl px-5 py-20 md:py-28">
           <div data-reveal className="max-w-3xl">
-            <p className="label">How privacy works on Solana</p>
+            <p className="label">How a send works</p>
             <h2 className="mt-4 text-[clamp(2.4rem,5vw,4rem)] font-extrabold leading-[0.95] tracking-[-0.03em]">
-              Verified, <span className="serif-italic font-normal">never revealed</span>.
+              One signature, <span className="serif-italic font-normal">many paths</span>.
             </h2>
           </div>
           <ol className="mt-14 grid gap-px overflow-hidden border rule bg-[var(--line)] md:grid-cols-3">
@@ -173,7 +197,23 @@ export default async function HomePage() {
               </li>
             ))}
           </ol>
-          <p className="mt-6 text-xs text-[var(--text-faint)]">Based on Solana Token-2022 Confidential Transfers. The transfer card at the top is an illustration, not a live transaction.</p>
+        </div>
+      </section>
+
+      {/* ROOM TO SPARE */}
+      <section id="bytes" className="border-b rule">
+        <div className="mx-auto max-w-6xl px-5 py-20 md:py-28">
+          <div data-reveal className="max-w-3xl">
+            <p className="label">Room to spare</p>
+            <h2 className="mt-4 text-[clamp(2.4rem,5vw,4rem)] font-extrabold leading-[0.95] tracking-[-0.03em]">
+              The whole route fits in <span className="serif-italic font-normal">one transaction</span>.
+            </h2>
+            <p className="mt-5 text-[15px] leading-relaxed text-[var(--text-soft)]">
+              A Solana transaction holds 1,232 bytes, and every wallet can sign one. Here is a real send at each level,
+              built by the same code as the Send page and measured byte by byte. Every square is 16 bytes.
+            </p>
+          </div>
+          <div className="mt-12" data-reveal><ByteBudget /></div>
         </div>
       </section>
 
@@ -243,15 +283,16 @@ export default async function HomePage() {
         <div className="hero-glow cta-glow" aria-hidden="true" />
         <div className="relative mx-auto max-w-6xl px-5 py-28 text-center md:py-36" data-reveal>
           <h2 className="mx-auto max-w-4xl text-[clamp(2.8rem,8vw,6.5rem)] font-extrabold leading-[0.9] tracking-[-0.045em]">
-            Own your <span className="serif-italic font-normal text-[var(--color-orange)]">privacy</span>.
+            Step into <span className="serif-italic font-normal text-[var(--color-orange)]">privacy</span>.
           </h2>
-          <p className="mx-auto mt-6 max-w-md text-[var(--text-soft)]">Privacy is a right, not a feature.</p>
-          <div className="mt-10 flex justify-center gap-3">
-            {LINKS.pumpfun ? (
-              <a href={LINKS.pumpfun} className="btn-primary">
-                Buy {TOKEN.symbol} <span aria-hidden="true">→</span>
-              </a>
-            ) : null}
+          <p className="mx-auto mt-6 max-w-md text-[var(--text-soft)]">Connect a wallet, pick a level, sign once.</p>
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
+            <Link href="/send" className="btn-primary">
+              Send privately <span aria-hidden="true">→</span>
+            </Link>
+            <Link href="/swap" className="btn-ghost">
+              Open swap
+            </Link>
             <a href={LINKS.x} className="btn-ghost">
               Follow on 𝕏
             </a>

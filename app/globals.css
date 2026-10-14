@@ -310,3 +310,18 @@ body {
   .js-reveal [data-reveal] { opacity: 1; transform: none; transition: none; }
   .btn-primary, .card { transition: none; }
 }
+
+/* ---------- tools (send / swap) ---------- */
+.field {
+  width: 100%; background: var(--ground); border: 1px solid var(--line);
+  padding: 0.8rem 1rem; color: var(--text); outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field::placeholder { color: var(--text-faint); }
+.field:focus { border-color: var(--color-orange); box-shadow: 0 0 0 3px var(--color-orange-soft); }
+select.field { appearance: none; cursor: pointer; }
+.route-arc { animation: arc-in 0.5s both; }
+@keyframes arc-in { from { opacity: 0; transform: translateY(-4px); } }
+.bytegrid { display: grid; grid-template-columns: repeat(22, minmax(0, 1fr)); gap: 3px; }
+.bytegrid i { aspect-ratio: 1; background: var(--line); transition: background 0.3s; }
+@media (max-width: 640px) { .bytegrid { grid-template-columns: repeat(14, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { .route-arc { animation: none; } }

@@ -9,19 +9,20 @@ export function SiteFooter() {
         <div className="flex items-center gap-3">
           <Mark className="h-8 w-8" />
           <div>
-            <p className="font-extrabold tracking-tight">
-              PRVC <span className="serif-italic font-normal">privacy</span>
-            </p>
-            <p className="label mt-0.5">Privacy is a right</p>
+            <p className="font-extrabold tracking-tight">PRVC</p>
+            <p className="label mt-0.5">Private swaps and sends on Solana</p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-6 text-sm text-[var(--text-soft)]">
-          <Link href="/#about" className="hover:text-[var(--color-orange)]">
-            About
+          <Link href="/swap" className="hover:text-[var(--color-orange)]">
+            Swap
           </Link>
-          <Link href="/#rewards" className="hover:text-[var(--color-orange)]">
-            Rewards
+          <Link href="/send" className="hover:text-[var(--color-orange)]">
+            Send
+          </Link>
+          <Link href="/docs" className="hover:text-[var(--color-orange)]">
+            Docs
           </Link>
           <a href={LINKS.x} className="hover:text-[var(--color-orange)]">
             X
@@ -44,8 +45,9 @@ export function SiteFooter() {
         <p className="max-w-3xl text-xs leading-relaxed text-[var(--text-faint)]">
           {TOKEN.symbol} is a community token. Nothing here is financial advice, and no reward,
           payout or return is guaranteed — reward pools only exist to the extent fees are collected.
-          PRVC is not a mixer or tumbler and does not launder funds. Never sign a transaction you do
-          not understand.
+          The Send and Swap tools are non-custodial software that runs in your browser; you sign every
+          transaction yourself and are responsible for using them lawfully. Never sign a transaction you
+          do not understand.
         </p>
       </div>
     </footer>
